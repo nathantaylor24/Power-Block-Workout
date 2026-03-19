@@ -1,1090 +1,170 @@
-<!DOCTYPE html>
-
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PowerBlock Workouts</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            color: white;
-            overflow: hidden;
-            height: 100vh;
-        }
-        .container { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .header {
-            background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .header-content {
-            max-width: 600px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header-title { font-size: 1.25rem; font-weight: 700; }
-        .header-subtitle { font-size: 0.75rem; color: #94a3b8; }
-        .header-stats { text-align: right; display: none; }
-        .header-stat-label { font-size: 0.75rem; color: #94a3b8; }
-        .header-stat-value { font-size: 1.25rem; font-weight: 700; color: #3b82f6; }
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-        }
-        .content-max-width { width: 100%; max-width: 600px; }
-        .view { display: none; }
-        .view.active { display: flex; flex-direction: column; width: 100%; }
-        .select-view { justify-content: center; align-items: center; min-height: 100%; }
-        .select-container { text-align: center; width: 100%; }
-        .app-title { font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; }
-        .app-subtitle { font-size: 0.875rem; color: #94a3b8; margin-bottom: 3rem; letter-spacing: 0.1em; text-transform: uppercase; }
-        .nav-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            background: rgba(15, 23, 42, 0.8);
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-        }
-        .nav-tab {
-            flex: 1;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 0.375rem;
-            background: rgba(51, 65, 85, 0.8);
-            color: #94a3b8;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .nav-tab.active { background: rgb(37, 99, 235); color: white; }
-        .workout-buttons { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3rem; }
-        .workout-btn {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            border: none;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            color: white;
-            font-weight: 600;
-            font-size: 1.125rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .workout-btn:active { transform: scale(0.95); }
-        .workout-btn:hover { background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); }
-        .workout-btn-title { font-size: 1.25rem; font-weight: 700; }
-        .workout-btn-subtitle { font-size: 0.875rem; color: rgba(255, 255, 255, 0.8); margin-top: 0.5rem; }
-        .program-info {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 0.5rem;
-            padding: 1rem;
-        }
-        .program-info-label { font-size: 0.75rem; color: #60a5fa; font-weight: 600; }
-        .program-info-text { font-size: 0.875rem; color: #cbd5e1; margin-top: 0.5rem; }
-        .workout-card {
-            background: rgba(30, 41, 59, 0.9);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .exercise-header { text-align: center; margin-bottom: 1.5rem; }
-        .exercise-progress { font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem; }
-        .exercise-title { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
-        .exercise-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .exercise-stat {
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            text-align: center;
-        }
-        .stat-label {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-        }
-        .stat-value { font-size: 1.75rem; font-weight: 700; color: #60a5fa; }
-        .weight-tracker {
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .weight-control {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-        }
-        .weight-btn {
-            background: rgba(51, 65, 85, 0.8);
-            border: none;
-            color: white;
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            font-size: 1.25rem;
-        }
-        .weight-display { text-align: center; flex: 1; }
-        .weight-amount { font-size: 3rem; font-weight: 700; }
-        .weight-unit { font-size: 0.75rem; color: #94a3b8; }
-        .set-progress {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .set-badge {
-            flex: 1;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            text-align: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .set-badge.complete { background: rgb(34, 197, 94); color: white; }
-        .set-badge.current { background: rgb(59, 130, 246); color: white; }
-        .set-badge.pending { background: rgba(51, 65, 85, 0.8); color: #94a3b8; }
-        .timer-section {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .timer-label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.75rem; text-transform: uppercase; }
-        .timer-display {
-            font-family: monospace;
-            font-size: 4rem;
-            font-weight: 700;
-            color: #60a5fa;
-            margin-bottom: 1rem;
-        }
-        .timer-buttons { display: flex; gap: 0.75rem; }
-        .btn {
-            border: none;
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.875rem;
-            flex: 1;
-        }
-        .btn-primary { background: rgb(37, 99, 235); color: white; }
-        .btn-primary:active { transform: scale(0.95); }
-        .btn-primary:hover { background: rgb(29, 78, 216); }
-        .btn-secondary { background: rgba(51, 65, 85, 0.8); color: white; }
-        .btn-secondary:active { transform: scale(0.95); }
-        .btn-secondary:hover { background: rgba(51, 65, 85, 1); }
-        .btn-success { background: rgb(34, 197, 94); color: white; padding: 1rem; font-size: 1rem; margin-bottom: 1rem; }
-        .btn-success:active { transform: scale(0.95); }
-        .btn-success:hover { background: rgb(22, 163, 74); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .nav-buttons { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
-        .nav-buttons .btn { flex: 1; padding: 0.75rem; }
-        .exercise-list {
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .exercise-list-label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.75rem; font-weight: 600; text-transform: uppercase; }
-        .exercise-item {
-            padding: 0.75rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            transition: all 0.2s;
-        }
-        .exercise-item.current { background: rgb(37, 99, 235); color: white; font-weight: 600; }
-        .exercise-item.pending { background: rgba(51, 65, 85, 0.8); color: #cbd5e1; }
-        .exercise-item.pending:hover { background: rgba(51, 65, 85, 1); }
-        .exercise-item-reps { color: #94a3b8; font-size: 0.75rem; }
-        .pre-workout { justify-content: center; align-items: center; min-height: 100%; }
-        .pre-workout-container { width: 100%; text-align: center; }
-        .workout-preview {
-            background: rgba(30, 41, 59, 0.9);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-        .workout-preview-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
-        .exercise-list-preview { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
-        .exercise-preview-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.875rem;
-            color: #cbd5e1;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-        }
-        .finisher-box {
-            background: rgba(180, 83, 9, 0.3);
-            border: 1px solid rgba(245, 158, 11, 0.5);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-        .finisher-label { font-size: 0.75rem; color: rgb(217, 119, 6); font-weight: 600; margin-bottom: 0.5rem; }
-        .finisher-text { font-size: 0.875rem; color: rgba(255, 193, 7, 0.9); }
-        .finished-view { justify-content: center; align-items: center; min-height: 100%; }
-        .finished-container { text-align: center; width: 100%; }
-        .finished-emoji { font-size: 4rem; margin-bottom: 1rem; }
-        .finished-title { font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .finished-subtitle { font-size: 3rem; font-weight: 700; color: rgb(34, 197, 94); margin-bottom: 2rem; }
-        .finished-box {
-            background: rgba(30, 41, 59, 0.9);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .finished-workout { font-size: 1.5rem; font-weight: 700; color: rgb(34, 197, 94); margin-bottom: 0.5rem; }
-        .finished-name { font-size: 1rem; color: #cbd5e1; margin-bottom: 1rem; }
-        .finisher-reminder { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; }
-        .finisher-text-finished { font-size: 0.875rem; color: #e2e8f0; font-weight: 600; }
-        .back-btn {
-            background: rgba(51, 65, 85, 0.8);
-            border: none;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.375rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 1rem;
-        }
-        .back-btn:hover { background: rgba(51, 65, 85, 1); }
-        .back-btn:active { transform: scale(0.95); }
-        /* Calendar */
-        .calendar-container {
-            background: rgba(30, 41, 59, 0.9);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .calendar-nav-btn {
-            background: rgba(51, 65, 85, 0.8);
-            border: none;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .calendar-month { font-weight: 700; font-size: 1.125rem; text-align: center; flex: 1; }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .calendar-day-header {
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.75rem;
-            color: #94a3b8;
-            padding: 0.5rem 0;
-            text-transform: uppercase;
-        }
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 600;
-            transition: all 0.2s;
-            background: rgba(51, 65, 85, 0.6);
-            color: #cbd5e1;
-        }
-        .calendar-day:hover:not(.other-month) { background: rgba(51, 65, 85, 1); }
-        .calendar-day.other-month { color: #475569; cursor: default; background: transparent; }
-        .calendar-day.has-workout { background: rgb(59, 130, 246); color: white; }
-        .calendar-day.has-workout:hover { background: rgb(37, 99, 235); }
-        .calendar-day.today { border: 2px solid rgb(34, 197, 94); }
-        .workout-details-modal {
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-        .workout-details-title { font-weight: 700; margin-bottom: 0.75rem; color: #60a5fa; }
-        .workout-details-item {
-            padding: 0.75rem;
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 0.375rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-        }
-        /* Weight tracking */
-        .weight-section {
-            background: rgba(30, 41, 59, 0.9);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .weight-input-container { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
-        .weight-input {
-            flex: 1;
-            padding: 0.75rem;
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            border-radius: 0.375rem;
-            background: rgba(15, 23, 42, 0.8);
-            color: white;
-            font-size: 1rem;
-        }
-        .weight-input::placeholder { color: #64748b; }
-        .weight-input-btn {
-            background: rgb(37, 99, 235);
-            border: none;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.375rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .weight-input-btn:hover { background: rgb(29, 78, 216); }
-        .weight-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .weight-stat {
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 0.375rem;
-            padding: 1rem;
-            text-align: center;
-        }
-        .weight-stat-label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; text-transform: uppercase; }
-        .weight-stat-value { font-size: 1.75rem; font-weight: 700; color: #60a5fa; }
-        .weight-stat-change { font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
-        .weight-stat-change.positive { color: rgb(34, 197, 94); }
-        .weight-stat-change.negative { color: rgb(239, 68, 68); }
-        .weight-history {
-            max-height: 200px;
-            overflow-y: auto;
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 0.375rem;
-            padding: 1rem;
-        }
-        .weight-entry {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-            font-size: 0.875rem;
-            color: #cbd5e1;
-        }
-        .weight-entry:last-child { border-bottom: none; }
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-bottom: 1rem;
-        }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="header-content">
-                <div>
-                    <div class="header-title" id="headerTitle">Select Workout</div>
-                    <div class="header-subtitle" id="headerSubtitle">Get ready to train</div>
-                </div>
-                <div class="header-stats" id="headerStats">
-                    <div class="header-stat-label">Set</div>
-                    <div class="header-stat-value"><span id="currentSet">1</span>/<span id="totalSets">4</span></div>
-                </div>
-            </div>
-        </div>
-
-```
-    <div class="main-content">
-        <div class="content-max-width">
-            <!-- SELECT VIEW -->
-            <div class="view select-view active" id="selectView">
-                <div class="select-container">
-                    <div class="nav-tabs">
-                        <button class="nav-tab active" data-tab="workouts">Workouts</button>
-                        <button class="nav-tab" data-tab="history">History</button>
-                        <button class="nav-tab" data-tab="progress">Progress</button>
-                    </div>
-
-                    <div id="workoutsTab">
-                        <div class="app-title">POWERBLOCK</div>
-                        <div class="app-subtitle">Balloon Method Workouts</div>
-                        <div class="workout-buttons">
-                            <button class="workout-btn" onclick="goSelectWorkout('A')">
-                                <div class="workout-btn-title">Workout A</div>
-                                <div class="workout-btn-subtitle">Chest & Back</div>
-                            </button>
-                            <button class="workout-btn" onclick="goSelectWorkout('B')">
-                                <div class="workout-btn-title">Workout B</div>
-                                <div class="workout-btn-subtitle">Shoulders & Triceps</div>
-                            </button>
-                            <button class="workout-btn" onclick="goSelectWorkout('C')">
-                                <div class="workout-btn-title">Workout C</div>
-                                <div class="workout-btn-subtitle">Legs & Glutes</div>
-                            </button>
-                        </div>
-                        <div class="program-info">
-                            <div class="program-info-label">30-MIN SESSIONS</div>
-                            <div class="program-info-text">2min warmup + 23min main + 3min finisher + 2min cooldown</div>
-                        </div>
-                    </div>
-
-                    <div id="historyTab" style="display: none;">
-                        <div class="calendar-container">
-                            <div class="calendar-header">
-                                <button class="calendar-nav-btn" onclick="previousMonth()">← Prev</button>
-                                <div class="calendar-month" id="calendarMonth">January 2025</div>
-                                <button class="calendar-nav-btn" onclick="nextMonth()">Next →</button>
-                            </div>
-                            <div class="calendar-grid" id="calendarGrid"></div>
-                            <div id="selectedWorkoutDetails"></div>
-                        </div>
-                    </div>
-
-                    <div id="progressTab" style="display: none;">
-                        <div class="weight-section">
-                            <h3 style="margin-bottom: 1rem; font-size: 1.125rem; font-weight: 700;">Body Weight Tracker</h3>
-                            <div class="weight-input-container">
-                                <input type="number" class="weight-input" id="weightInput" placeholder="Enter weight (lbs)" step="0.1">
-                                <button class="weight-input-btn" onclick="addWeight()">Add</button>
-                            </div>
-                            <div class="weight-stats">
-                                <div class="weight-stat">
-                                    <div class="weight-stat-label">Current</div>
-                                    <div class="weight-stat-value" id="currentWeight">-</div>
-                                    <div class="weight-stat-change" id="currentChange"></div>
-                                </div>
-                                <div class="weight-stat">
-                                    <div class="weight-stat-label">Starting</div>
-                                    <div class="weight-stat-value" id="startingWeight">-</div>
-                                    <div class="weight-stat-change" id="startingChange"></div>
-                                </div>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="weightChart"></canvas>
-                            </div>
-                            <div class="weight-history">
-                                <div id="weightHistoryList"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PRE-WORKOUT VIEW -->
-            <div class="view pre-workout" id="preWorkoutView">
-                <button class="back-btn" onclick="goBackToSelect()">← Back</button>
-                <div class="pre-workout-container">
-                    <div class="workout-preview">
-                        <div class="workout-preview-title">Workout <span id="preWorkoutLetter"></span></div>
-                        <div class="workout-preview-title" id="preWorkoutName" style="font-size: 1.5rem; margin-bottom: 1.5rem;"></div>
-                        <div class="exercise-list-preview" id="exerciseListPreview"></div>
-                    </div>
-                    <div class="finisher-box">
-                        <div class="finisher-label">FINISHER</div>
-                        <div class="finisher-text" id="finisherPreview"></div>
-                    </div>
-                    <button class="btn btn-primary" onclick="goStartWorkout()" style="padding: 1rem; font-size: 1rem; margin-bottom: 1rem;">▶ START WORKOUT</button>
-                </div>
-            </div>
-
-            <!-- ACTIVE WORKOUT VIEW -->
-            <div class="view" id="workoutView">
-                <button class="back-btn" onclick="goBackToSelect()">← Back</button>
-                <div class="workout-card">
-                    <div class="exercise-header">
-                        <div class="exercise-progress">Exercise <span id="exerciseCount">1</span>/<span id="totalExercises">6</span></div>
-                        <div class="exercise-title" id="exerciseName">Exercise Name</div>
-                    </div>
-                    <div class="exercise-grid">
-                        <div class="exercise-stat">
-                            <div class="stat-label">Reps</div>
-                            <div class="stat-value" id="exerciseReps">10</div>
-                        </div>
-                        <div class="exercise-stat">
-                            <div class="stat-label">Tempo</div>
-                            <div class="stat-value" id="exerciseTempo" style="font-size: 1.25rem;">3-1-2</div>
-                        </div>
-                        <div class="exercise-stat">
-                            <div class="stat-label">Rest</div>
-                            <div class="stat-value" id="exerciseRest" style="font-size: 1.5rem;">45s</div>
-                        </div>
-                    </div>
-                    <div class="weight-tracker">
-                        <div class="stat-label">Weight Used</div>
-                        <div class="weight-control">
-                            <button class="weight-btn" onclick="updateWeight(-5)">−</button>
-                            <div class="weight-display">
-                                <div class="weight-amount" id="weightAmount">0</div>
-                                <div class="weight-unit">lbs</div>
-                            </div>
-                            <button class="weight-btn" onclick="updateWeight(5)">+</button>
-                        </div>
-                    </div>
-                    <div class="set-progress" id="setProgress"></div>
-                    <div class="timer-section">
-                        <div class="timer-label" id="timerLabel">Rest Timer</div>
-                        <div class="timer-display" id="timerDisplay">0:00</div>
-                        <div class="timer-buttons">
-                            <button class="btn btn-primary" onclick="handleTimerBtn1()">2:00 Work</button>
-                            <button class="btn btn-secondary" onclick="handleTimerBtn2()">Rest</button>
-                        </div>
-                    </div>
-                    <button class="btn btn-success" onclick="completeSet()">✓ SET COMPLETE</button>
-                    <div class="nav-buttons">
-                        <button class="btn btn-secondary" onclick="previousExercise()" id="prevBtn">← Prev</button>
-                        <button class="btn btn-secondary" onclick="nextExercise()" id="nextBtn">Next →</button>
-                    </div>
-                    <div class="exercise-list">
-                        <div class="exercise-list-label">Workout Plan</div>
-                        <div id="exerciseListContainer"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- FINISHED VIEW -->
-            <div class="view finished-view" id="finishedView">
-                <button class="back-btn" onclick="goBackToSelect()">← Back</button>
-                <div class="finished-container">
-                    <div class="finished-emoji">🔥</div>
-                    <div class="finished-title">Workout</div>
-                    <div class="finished-subtitle">Complete</div>
-                    <div class="finished-box">
-                        <div class="finished-workout">Workout <span id="finishedLetter"></span></div>
-                        <div class="finished-name" id="finishedName"></div>
-                        <div class="finisher-reminder">Don't forget your finisher:</div>
-                        <div class="finisher-text-finished" id="finishedFinisher"></div>
-                    </div>
-                    <button class="btn btn-primary" onclick="goBackToSelect()" style="padding: 1rem; font-size: 1rem;">Start Another Workout</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-    const workoutData = {
-        A: {
-            name: 'Chest & Back',
-            finisher: 'BOSU Jump Squats (30sec work / 30sec rest × 3)',
-            exercises: [
-                { name: 'DB Bench Press', sets: 4, reps: 8, tempo: '3-1-2', rest: 45 },
-                { name: 'DB Rows (Bench Supported)', sets: 4, reps: 8, tempo: '2-1-3', rest: 45 },
-                { name: 'Incline DB Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30 },
-                { name: 'Single Arm DB Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30 },
-                { name: 'DB Flyes (Bench)', sets: 2, reps: 12, tempo: '3-1-2', rest: 20 },
-                { name: 'DB Reverse Flyes', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 }
-            ]
-        },
-        B: {
-            name: 'Shoulders & Triceps',
-            finisher: 'Mountain Climbers on BOSU (40sec work / 20sec rest × 3)',
-            exercises: [
-                { name: 'DB Shoulder Press', sets: 4, reps: 8, tempo: '2-1-2', rest: 45 },
-                { name: 'DB Lateral Raises', sets: 4, reps: 10, tempo: '2-1-2', rest: 30 },
-                { name: 'Overhead DB Tricep Extension', sets: 3, reps: 10, tempo: '2-1-2', rest: 30 },
-                { name: 'DB Chest Supported Incline Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30 },
-                { name: 'Single DB Lateral Raise', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 },
-                { name: 'Tricep Kickbacks', sets: 2, reps: 12, tempo: '2-1-1', rest: 20 }
-            ]
-        },
-        C: {
-            name: 'Legs & Glutes',
-            finisher: 'Jump Squats + Burpees (20sec × 2 rounds)',
-            exercises: [
-                { name: 'DB Goblet Squats', sets: 4, reps: 10, tempo: '3-1-2', rest: 45 },
-                { name: 'DB Romanian Deadlifts', sets: 4, reps: 8, tempo: '3-1-2', rest: 45 },
-                { name: 'DB Bulgarian Split Squats', sets: 3, reps: 10, tempo: '2-1-2', rest: 30 },
-                { name: 'DB Step-ups (Bench)', sets: 3, reps: 10, tempo: '2-1-1', rest: 30 },
-                { name: 'DB Walking Lunges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 },
-                { name: 'Sumo DB Deadlifts', sets: 2, reps: 12, tempo: '3-1-2', rest: 20 }
-            ]
-        }
+let viewHistory = [];
+let appState = JSON.parse(localStorage.getItem('appState')) || {};
+
+const workoutData = {
+    A: {
+        name: 'Chest & Back',
+        finisher: 'BOSU Jump Squats (30sec work / 30sec rest × 3)',
+        exercises: [
+            { name: 'DB Bench Press', sets: 4, reps: 8, tempo: '3-1-2', rest: 45 },
+            { name: 'DB Rows (Bench Supported)', sets: 4, reps: 8, tempo: '2-1-3', rest: 45 },
+            { name: 'Incline DB Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30 },
+            { name: 'Single Arm DB Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30 },
+            { name: 'DB Flyes (Bench)', sets: 2, reps: 12, tempo: '3-1-2', rest: 20 },
+            { name: 'DB Reverse Flyes', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 }
+        ]
+    },
+    B: {
+        name: 'Shoulders & Triceps',
+        finisher: 'Mountain Climbers on BOSU (40sec work / 20sec rest × 3)',
+        exercises: [
+            { name: 'DB Shoulder Press', sets: 4, reps: 8, tempo: '2-1-2', rest: 45 },
+            { name: 'DB Lateral Raises', sets: 4, reps: 10, tempo: '2-1-2', rest: 30 },
+            { name: 'Overhead DB Tricep Extension', sets: 3, reps: 10, tempo: '2-1-2', rest: 30 },
+            { name: 'DB Chest Supported Incline Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30 },
+            { name: 'Single DB Lateral Raise', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 },
+            { name: 'Tricep Kickbacks', sets: 2, reps: 12, tempo: '2-1-1', rest: 20 }
+        ]
+    },
+    C: {
+        name: 'Legs & Glutes',
+        finisher: 'Jump Squats + Burpees (20sec × 2 rounds)',
+        exercises: [
+            { name: 'DB Goblet Squats', sets: 4, reps: 10, tempo: '3-1-2', rest: 45 },
+            { name: 'DB Romanian Deadlifts', sets: 4, reps: 8, tempo: '3-1-2', rest: 45 },
+            { name: 'DB Bulgarian Split Squats', sets: 3, reps: 10, tempo: '2-1-2', rest: 30 },
+            { name: 'DB Step-ups (Bench)', sets: 3, reps: 10, tempo: '2-1-1', rest: 30 },
+            { name: 'DB Walking Lunges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 },
+            { name: 'Sumo DB Deadlifts', sets: 2, reps: 12, tempo: '3-1-2', rest: 20 }
+        ]
+    }
+};
+
+let currentWorkout = null;
+let currentExerciseIdx = 0;
+let currentSetIdx = 0;
+let weights = {};
+let completedSets = {};
+let timerInterval = null;
+let timeRemaining = 0;
+
+/* =========================
+   STATE SAVE / LOAD
+========================= */
+
+function saveState() {
+    appState = {
+        currentWorkout,
+        currentExerciseIdx,
+        currentSetIdx,
+        weights,
+        completedSets,
+        view: document.querySelector('.view.active')?.id
     };
+    localStorage.setItem('appState', JSON.stringify(appState));
+}
 
-    let currentWorkout = null;
-    let currentExerciseIdx = 0;
-    let currentSetIdx = 0;
-    let weights = {};
-    let completedSets = {};
-    let timerInterval = null;
-    let timeRemaining = 0;
-    let timerMode = 'rest';
-    let timerActive = false;
-    let currentMonth = new Date();
-    let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || {};
-    let weightHistory = JSON.parse(localStorage.getItem('weightHistory')) || [];
-    let weightChart = null;
+function loadState() {
+    if (!appState.currentWorkout) return;
 
-    function showView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
+    currentWorkout = appState.currentWorkout;
+    currentExerciseIdx = appState.currentExerciseIdx;
+    currentSetIdx = appState.currentSetIdx;
+    weights = appState.weights || {};
+    completedSets = appState.completedSets || {};
 
-    function goSelectWorkout(w) {
-        currentWorkout = w;
-        currentExerciseIdx = 0;
-        currentSetIdx = 0;
-        weights = {};
-        completedSets = {};
-        document.getElementById('preWorkoutLetter').textContent = w;
-        document.getElementById('preWorkoutName').textContent = workoutData[w].name;
-        document.getElementById('finisherPreview').textContent = workoutData[w].finisher;
-        document.getElementById('exerciseListPreview').innerHTML = workoutData[w].exercises.map((ex, idx) => `
-            <div class="exercise-preview-item">
-                <span>${idx + 1}. ${ex.name}</span>
-                <span style="color: #94a3b8;">${ex.sets}×${ex.reps}</span>
-            </div>
-        `).join('');
-        showView('preWorkoutView');
-        document.getElementById('headerStats').style.display = 'none';
-        document.getElementById('headerTitle').textContent = `Workout ${w}`;
-        document.getElementById('headerSubtitle').textContent = workoutData[w].name;
-    }
+    showView(appState.view || 'selectView', false);
 
-    function goStartWorkout() {
-        currentExerciseIdx = 0;
-        currentSetIdx = 0;
+    if (currentWorkout && appState.view === 'workoutView') {
         updateWorkoutView();
-        showView('workoutView');
         document.getElementById('headerStats').style.display = 'block';
     }
+}
 
-    function goBackToSelect() {
-        currentWorkout = null;
-        currentExerciseIdx = 0;
-        currentSetIdx = 0;
-        weights = {};
-        completedSets = {};
-        stopTimer();
-        showView('selectView');
-        document.getElementById('headerStats').style.display = 'none';
-        document.getElementById('headerTitle').textContent = 'Select Workout';
-        document.getElementById('headerSubtitle').textContent = 'Get ready to train';
-        switchToTab('workouts');
+/* =========================
+   NAVIGATION
+========================= */
+
+function showView(id, push = true) {
+    const current = document.querySelector('.view.active');
+    if (current && push) {
+        viewHistory.push(current.id);
+        history.pushState({ view: id }, '', '');
     }
 
-    function switchToTab(tabName) {
-        const tabs = document.querySelectorAll('.nav-tab');
-        tabs.forEach(tab => {
-            tab.classList.remove('active');
-            if (tab.dataset.tab === tabName) tab.classList.add('active');
-        });
-        document.getElementById('workoutsTab').style.display = tabName === 'workouts' ? 'block' : 'none';
-        document.getElementById('historyTab').style.display = tabName === 'history' ? 'block' : 'none';
-        document.getElementById('progressTab').style.display = tabName === 'progress' ? 'block' : 'none';
-        if (tabName === 'history') renderCalendar();
-        if (tabName === 'progress') { updateWeightDisplay(); updateWeightChart(); }
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+
+    saveState();
+}
+
+function goBack() {
+    if (viewHistory.length === 0) return;
+
+    const prev = viewHistory.pop();
+    showView(prev, false);
+}
+
+window.onpopstate = function () {
+    if (viewHistory.length > 0) {
+        const prev = viewHistory.pop();
+        showView(prev, false);
     }
+};
 
-    // Initialize everything on load
-    window.addEventListener('load', () => {
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', () => switchToTab(tab.dataset.tab));
-        });
-        renderCalendar();
-        updateWeightDisplay();
-    });
+/* =========================
+   WORKOUT FLOW
+========================= */
 
-    function updateWorkoutView() {
-        const workout = workoutData[currentWorkout];
-        const exercise = workout.exercises[currentExerciseIdx];
-        const setKey = `${currentWorkout}-${currentExerciseIdx}-${currentSetIdx}`;
+function goSelectWorkout(w) {
+    currentWorkout = w;
+    currentExerciseIdx = 0;
+    currentSetIdx = 0;
+    weights = {};
+    completedSets = {};
 
-        document.getElementById('headerTitle').textContent = exercise.name;
-        document.getElementById('currentSet').textContent = currentSetIdx + 1;
-        document.getElementById('totalSets').textContent = exercise.sets;
-        document.getElementById('exerciseCount').textContent = currentExerciseIdx + 1;
-        document.getElementById('totalExercises').textContent = workout.exercises.length;
-        document.getElementById('exerciseName').textContent = exercise.name;
-        document.getElementById('exerciseReps').textContent = exercise.reps;
-        document.getElementById('exerciseTempo').textContent = exercise.tempo;
-        document.getElementById('exerciseRest').textContent = exercise.rest + 's';
+    document.getElementById('preWorkoutLetter').textContent = w;
+    document.getElementById('preWorkoutName').textContent = workoutData[w].name;
 
-        const weightKey = `${currentWorkout}-${currentExerciseIdx}`;
-        document.getElementById('weightAmount').textContent = weights[weightKey] || 0;
+    showView('preWorkoutView');
+}
 
-        const setProgressHTML = Array.from({ length: exercise.sets }).map((_, idx) => {
-            const completed = completedSets[`${currentWorkout}-${currentExerciseIdx}-${idx}`];
-            let classes = 'set-badge ';
-            if (completed) classes += 'complete';
-            else if (idx === currentSetIdx) classes += 'current';
-            else classes += 'pending';
-            return `<div class="${classes}">${idx + 1}</div>`;
-        }).join('');
-        document.getElementById('setProgress').innerHTML = setProgressHTML;
+function goStartWorkout() {
+    updateWorkoutView();
+    showView('workoutView');
+    document.getElementById('headerStats').style.display = 'block';
+}
 
-        updateTimerDisplay();
+function updateWorkoutView() {
+    const workout = workoutData[currentWorkout];
+    const exercise = workout.exercises[currentExerciseIdx];
 
-        const exerciseListHTML = workout.exercises.map((ex, idx) => {
-            let classes = 'exercise-item ';
-            if (idx === currentExerciseIdx) classes += 'current';
-            else classes += 'pending';
-            return `
-                <div class="${classes}" onclick="jumpToExercise(${idx})">
-                    <span>${ex.name}</span>
-                    <span class="exercise-item-reps">${ex.sets}×${ex.reps}</span>
-                </div>
-            `;
-        }).join('');
-        document.getElementById('exerciseListContainer').innerHTML = exerciseListHTML;
+    document.getElementById('exerciseName').textContent = exercise.name;
+    document.getElementById('exerciseReps').textContent = exercise.reps;
 
-        document.getElementById('prevBtn').disabled = currentExerciseIdx === 0;
-        document.getElementById('nextBtn').disabled = currentExerciseIdx === workout.exercises.length - 1;
-    }
+    saveState();
+}
 
-    function updateWeight(delta) {
-        const key = `${currentWorkout}-${currentExerciseIdx}`;
-        weights[key] = Math.max(0, (weights[key] || 0) + delta);
-        document.getElementById('weightAmount').textContent = weights[key];
-    }
+/* =========================
+   TIMER
+========================= */
 
-    function completeSet() {
-        const exercise = workoutData[currentWorkout].exercises[currentExerciseIdx];
-        const setKey = `${currentWorkout}-${currentExerciseIdx}-${currentSetIdx}`;
-        completedSets[setKey] = true;
-        stopTimer();
+function startTimer(seconds) {
+    timeRemaining = seconds;
+    clearInterval(timerInterval);
 
-        if (currentSetIdx < exercise.sets - 1) {
-            currentSetIdx++;
-            startRestTimer();
-            updateWorkoutView();
-        } else if (currentExerciseIdx < workoutData[currentWorkout].exercises.length - 1) {
-            currentExerciseIdx++;
-            currentSetIdx = 0;
-            updateWorkoutView();
-        } else {
-            saveWorkout();
-            showFinished();
-        }
-    }
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        if (timeRemaining <= 0) clearInterval(timerInterval);
+    }, 1000);
+}
 
-    function nextExercise() {
-        if (currentExerciseIdx < workoutData[currentWorkout].exercises.length - 1) {
-            currentExerciseIdx++;
-            currentSetIdx = 0;
-            stopTimer();
-            updateWorkoutView();
-        }
-    }
+/* =========================
+   INIT
+========================= */
 
-    function previousExercise() {
-        if (currentExerciseIdx > 0) {
-            currentExerciseIdx--;
-            currentSetIdx = 0;
-            stopTimer();
-            updateWorkoutView();
-        }
-    }
-
-    function jumpToExercise(idx) {
-        currentExerciseIdx = idx;
-        currentSetIdx = 0;
-        stopTimer();
-        updateWorkoutView();
-    }
-
-    function formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function updateTimerDisplay() {
-        const exercise = workoutData[currentWorkout].exercises[currentExerciseIdx];
-        document.getElementById('timerDisplay').textContent = formatTime(timeRemaining);
-    }
-
-    function handleTimerBtn1() {
-        if (timeRemaining === 0) startWorkTimer(120);
-        else toggleTimer();
-    }
-
-    function handleTimerBtn2() {
-        if (timeRemaining === 0) startRestTimer();
-        else stopTimer();
-    }
-
-    function startRestTimer() {
-        const exercise = workoutData[currentWorkout].exercises[currentExerciseIdx];
-        timeRemaining = exercise.rest;
-        timerMode = 'rest';
-        startTimer();
-    }
-
-    function startWorkTimer(duration) {
-        timeRemaining = duration;
-        timerMode = 'work';
-        startTimer();
-    }
-
-    function startTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-        timerActive = true;
-        timerInterval = setInterval(() => {
-            if (timeRemaining > 0) {
-                timeRemaining--;
-                updateTimerDisplay();
-            } else {
-                stopTimer();
-                playTimerSound();
-            }
-        }, 1000);
-        updateTimerDisplay();
-    }
-
-    function toggleTimer() {
-        timerActive = !timerActive;
-        if (timerActive) startTimer();
-        else { if (timerInterval) clearInterval(timerInterval); }
-        updateTimerDisplay();
-    }
-
-    function stopTimer() {
-        timerActive = false;
-        timeRemaining = 0;
-        if (timerInterval) clearInterval(timerInterval);
-        updateTimerDisplay();
-    }
-
-    function playTimerSound() {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.1);
-    }
-
-    function saveWorkout() {
-        const today = new Date().toISOString().split('T')[0];
-        workoutHistory[today] = {
-            workout: currentWorkout,
-            date: today,
-            name: workoutData[currentWorkout].name,
-            weights: weights
-        };
-        localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
-    }
-
-    function showFinished() {
-        document.getElementById('finishedLetter').textContent = currentWorkout;
-        document.getElementById('finishedName').textContent = workoutData[currentWorkout].name;
-        document.getElementById('finishedFinisher').textContent = workoutData[currentWorkout].finisher;
-        showView('finishedView');
-    }
-
-    function renderCalendar() {
-        const year = currentMonth.getFullYear();
-        const month = currentMonth.getMonth();
-        document.getElementById('calendarMonth').textContent = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-        
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const daysInMonth = lastDay.getDate();
-        const startingDayOfWeek = firstDay.getDay();
-        
-        let html = '';
-        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
-            html += `<div class="calendar-day-header">${day}</div>`;
-        });
-        
-        for (let i = 0; i < startingDayOfWeek; i++) {
-            html += `<div class="calendar-day other-month"></div>`;
-        }
-        
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const hasWorkout = workoutHistory[dateStr];
-            const isToday = dateStr === new Date().toISOString().split('T')[0];
-            let classes = 'calendar-day ';
-            if (hasWorkout) classes += 'has-workout ';
-            if (isToday) classes += 'today ';
-            html += `<div class="${classes}" onclick="selectDate('${dateStr}')">${day}</div>`;
-        }
-        
-        const totalCells = html.split('calendar-day').length - 1;
-        for (let i = totalCells; i < 42; i++) {
-            html += `<div class="calendar-day other-month"></div>`;
-        }
-        
-        document.getElementById('calendarGrid').innerHTML = html;
-    }
-
-    function selectDate(dateStr) {
-        const workout = workoutHistory[dateStr];
-        let detailsHtml = '';
-        if (workout) {
-            detailsHtml = `
-                <div class="workout-details-modal">
-                    <div class="workout-details-title">Workout ${workout.workout}</div>
-                    <div class="workout-details-item"><strong>${workout.name}</strong></div>
-                    <div class="workout-details-item">${new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                </div>
-            `;
-        } else {
-            detailsHtml = `
-                <div class="workout-details-modal">
-                    <div class="workout-details-title">No workout recorded</div>
-                    <div class="workout-details-item">${new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                </div>
-            `;
-        }
-        document.getElementById('selectedWorkoutDetails').innerHTML = detailsHtml;
-    }
-
-    function previousMonth() {
-        currentMonth.setMonth(currentMonth.getMonth() - 1);
-        renderCalendar();
-    }
-
-    function nextMonth() {
-        currentMonth.setMonth(currentMonth.getMonth() + 1);
-        renderCalendar();
-    }
-
-    function addWeight() {
-        const input = document.getElementById('weightInput');
-        const weight = parseFloat(input.value);
-        if (isNaN(weight) || weight <= 0) { alert('Please enter a valid weight'); return; }
-        weightHistory.push({ date: new Date().toISOString().split('T')[0], weight: weight });
-        localStorage.setItem('weightHistory', JSON.stringify(weightHistory));
-        input.value = '';
-        updateWeightDisplay();
-        updateWeightChart();
-    }
-
-    function updateWeightDisplay() {
-        if (weightHistory.length === 0) {
-            document.getElementById('currentWeight').textContent = '-';
-            document.getElementById('startingWeight').textContent = '-';
-            document.getElementById('currentChange').textContent = '';
-            document.getElementById('startingChange').textContent = '';
-            updateWeightHistoryList();
-            return;
-        }
-        const sortedHistory = [...weightHistory].sort((a, b) => new Date(a.date) - new Date(b.date));
-        const currentWeight = sortedHistory[sortedHistory.length - 1].weight;
-        const startingWeight = sortedHistory[0].weight;
-        const difference = currentWeight - startingWeight;
-        document.getElementById('currentWeight').textContent = currentWeight.toFixed(1);
-        document.getElementById('startingWeight').textContent = startingWeight.toFixed(1);
-        const currentChangeEl = document.getElementById('currentChange');
-        if (difference === 0) currentChangeEl.textContent = '';
-        else if (difference > 0) {
-            currentChangeEl.textContent = `+${difference.toFixed(1)} lbs`;
-            currentChangeEl.className = 'weight-stat-change positive';
-        } else {
-            currentChangeEl.textContent = `${difference.toFixed(1)} lbs`;
-            currentChangeEl.className = 'weight-stat-change negative';
-        }
-        document.getElementById('startingChange').textContent = `(${sortedHistory.length} entries)`;
-        updateWeightHistoryList();
-    }
-
-    function updateWeightHistoryList() {
-        const sortedHistory = [...weightHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
-        let html = '';
-        sortedHistory.slice(0, 10).forEach(entry => {
-            const date = new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            html += `<div class="weight-entry"><span>${date}</span><span>${entry.weight.toFixed(1)} lbs</span></div>`;
-        });
-        document.getElementById('weightHistoryList').innerHTML = html || '<div class="weight-entry">No entries yet</div>';
-    }
-
-    function updateWeightChart() {
-        if (weightHistory.length < 2) return;
-        const sortedHistory = [...weightHistory].sort((a, b) => new Date(a.date) - new Date(b.date));
-        const labels = sortedHistory.map(entry => new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-        const data = sortedHistory.map(entry => entry.weight);
-        const ctx = document.getElementById('weightChart');
-        if (weightChart) {
-            weightChart.data.labels = labels;
-            weightChart.data.datasets[0].data = data;
-            weightChart.update();
-        } else {
-            weightChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Body Weight (lbs)',
-                        data: data,
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: 'rgb(59, 130, 246)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: false, grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { color: '#94a3b8' } }
-                    }
-                }
-            });
-        }
-    }
+window.addEventListener('load', () => {
+    loadState();
+});
 </script>
-```
-
-</body>
-</html>

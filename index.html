@@ -50,7 +50,7 @@
         .select-view { justify-content: center; align-items: center; min-height: 100%; }
         .select-container { text-align: center; width: 100%; }
         .app-title { font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; }
-        .app-subtitle { font-size: 0.875rem; color: #94a3b8; margin-bottom: 3rem; letter-spacing: 0.1em; text-transform: uppercase; }
+        .app-subtitle { font-size: 0.875rem; color: #94a3b8; margin-bottom: 1.5rem; letter-spacing: 0.1em; text-transform: uppercase; }
         .nav-tabs {
             display: flex;
             gap: 0.5rem;
@@ -71,7 +71,7 @@
             transition: all 0.2s;
         }
         .nav-tab.active { background: rgb(37, 99, 235); color: white; }
-        .workout-buttons { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3rem; }
+        .workout-buttons { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
         .workout-btn {
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             border: none;
@@ -415,10 +415,125 @@
             height: 300px;
             margin-bottom: 1rem;
         }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
+        .finisher-exercise-view { justify-content: center; align-items: center; min-height: 100%; }
+        .finisher-exercise-container { width: 100%; text-align: center; }
+        .finisher-header {
+            background: linear-gradient(135deg, rgba(180, 83, 9, 0.4) 0%, rgba(245, 158, 11, 0.3) 100%);
+            border: 2px solid rgba(245, 158, 11, 0.6);
+            border-radius: 0.75rem;
+            padding: 2rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .finisher-badge { font-size: 3rem; margin-bottom: 1rem; }
+        .finisher-title { font-size: 2.5rem; font-weight: 800; color: rgb(217, 119, 6); margin-bottom: 0.5rem; }
+        .finisher-description { font-size: 1.125rem; color: #cbd5e1; margin-bottom: 1rem; line-height: 1.6; }
+        .finisher-details-box {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .finisher-detail-row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1rem;
+        }
+        .finisher-detail-row:last-child { margin-bottom: 0; }
+        .finisher-detail-item {
+            text-align: center;
+            flex: 1;
+        }
+        .finisher-detail-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .finisher-detail-value { font-size: 1.75rem; font-weight: 700; color: rgb(217, 119, 6); }
+        .finisher-instructions {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .finisher-instructions-title { font-size: 1rem; font-weight: 700; color: #60a5fa; margin-bottom: 1rem; }
+        .finisher-instructions-text { font-size: 0.875rem; color: #cbd5e1; line-height: 1.6; }
+        .finisher-set-progress {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+        .finisher-set-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+        .finisher-set-badge.complete { background: rgb(34, 197, 94); color: white; }
+        .finisher-set-badge.current { background: rgb(217, 119, 6); color: white; box-shadow: 0 0 20px rgba(217, 119, 6, 0.5); }
+        .finisher-set-badge.pending { background: rgba(51, 65, 85, 0.8); color: #94a3b8; }
+        .motivational-view { justify-content: center; align-items: center; min-height: 100%; }
+        .motivational-container { width: 100%; text-align: center; }
+        .motivational-header {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+            border: 2px solid rgb(34, 197, 94);
+            border-radius: 1rem;
+            padding: 2rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .motivational-emoji { font-size: 4rem; margin-bottom: 1rem; animation: pulse 1s infinite; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .motivational-message { font-size: 2rem; font-weight: 800; color: rgb(34, 197, 94); margin-bottom: 1rem; line-height: 1.4; }
+        .motivational-subtext { font-size: 1rem; color: #cbd5e1; font-style: italic; }
+        .insights-section {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .insights-title { font-size: 1.125rem; font-weight: 700; color: #60a5fa; margin-bottom: 1rem; }
+        .insight-item {
+            background: rgba(15, 23, 42, 0.8);
+            border-left: 3px solid rgb(59, 130, 246);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        .insight-item:last-child { margin-bottom: 0; }
+        .insight-label { font-weight: 700; color: #60a5fa; margin-bottom: 0.25rem; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        .stat-card-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .stat-card-value { font-size: 1.75rem; font-weight: 700; color: rgb(34, 197, 94); }
+        .next-steps {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .next-steps-text { font-size: 0.875rem; color: #cbd5e1; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -580,6 +695,60 @@
                     </div>
                 </div>
 
+                <div class="view" id="finisherExerciseView">
+                    <button class="back-btn" onclick="goBackToSelect()">← Back</button>
+                    <div class="finisher-exercise-container">
+                        <div class="finisher-header">
+                            <div class="finisher-badge">🔥</div>
+                            <div class="finisher-title">FINISHER</div>
+                            <div class="finisher-description" id="finisherExerciseName">Exercise Name</div>
+                        </div>
+
+                        <div class="finisher-details-box">
+                            <div class="finisher-detail-row">
+                                <div class="finisher-detail-item">
+                                    <div class="finisher-detail-label">Sets</div>
+                                    <div class="finisher-detail-value" id="finisherSets">3</div>
+                                </div>
+                                <div class="finisher-detail-item">
+                                    <div class="finisher-detail-label">Work/Rest</div>
+                                    <div class="finisher-detail-value" id="finisherWorkRest">30/30</div>
+                                </div>
+                            </div>
+                            <div class="finisher-detail-row">
+                                <div class="finisher-detail-item">
+                                    <div class="finisher-detail-label">Current Set</div>
+                                    <div class="finisher-detail-value"><span id="finisherCurrentSet">1</span>/<span id="finisherTotalSets">3</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="finisher-instructions">
+                            <div class="finisher-instructions-title">📋 How It Works</div>
+                            <div class="finisher-instructions-text" id="finisherInstructions">
+                                Instructions will appear here
+                            </div>
+                        </div>
+
+                        <div class="finisher-set-progress" id="finisherSetProgress"></div>
+
+                        <div class="timer-section">
+                            <div class="timer-label" id="finisherTimerLabel">Get Ready</div>
+                            <div class="timer-display" id="finisherTimerDisplay">0:00</div>
+                            <div class="timer-buttons">
+                                <button class="btn btn-primary" onclick="handleFinisherWorkTimer()">Start Work</button>
+                                <button class="btn btn-secondary" onclick="stopFinisherTimer()">Stop</button>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-success" onclick="completeFinisherSet()">✓ SET COMPLETE</button>
+
+                        <div class="nav-buttons">
+                            <button class="btn btn-secondary" onclick="goBackToSelect()" style="flex: 1;">Finish Workout</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="view finished-view" id="finishedView">
                     <button class="back-btn" onclick="goBackToSelect()">← Back</button>
                     <div class="finished-container">
@@ -592,7 +761,57 @@
                             <div class="finisher-reminder">Don't forget your finisher:</div>
                             <div class="finisher-text-finished" id="finishedFinisher"></div>
                         </div>
-                        <button class="btn btn-primary" onclick="goBackToSelect()" style="padding: 1rem; font-size: 1rem;">Start Another Workout</button>
+                        <button class="btn btn-primary" onclick="showMotivationalScreen()" style="padding: 1rem; font-size: 1rem;">See Your Results</button>
+                    </div>
+                </div>
+
+                <div class="view motivational-view" id="motivationalView">
+                    <button class="back-btn" onclick="goBackToSelect()">← Back</button>
+                    <div class="motivational-container">
+                        <div class="motivational-header">
+                            <div class="motivational-emoji" id="motivationalEmoji">💪</div>
+                            <div class="motivational-message" id="motivationalMessage">You killed it!</div>
+                            <div class="motivational-subtext" id="motivationalSubtext">Go get 'em next time</div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-card-label">Workout Duration</div>
+                                <div class="stat-card-value" id="workoutDuration">~30 min</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-label">Exercises Completed</div>
+                                <div class="stat-card-value" id="exercisesCompleted">7</div>
+                            </div>
+                        </div>
+
+                        <div class="insights-section">
+                            <div class="insights-title">💡 Today's Insights</div>
+                            <div class="insight-item">
+                                <div class="insight-label">Balloon Method Recap</div>
+                                You started heavy with low reps and progressively increased volume while reducing weight. This approach maximizes both strength and muscle gains in a single session.
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-label">Finisher Impact</div>
+                                That finisher blasted your conditioning and metabolic rate. The high-intensity work creates a powerful afterburn effect (EPOC) for hours after your workout.
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-label">Recovery Tip</div>
+                                Grab some protein and carbs within the next hour to maximize muscle protein synthesis. Your muscles are primed to absorb nutrients right now.
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-label">Progressive Overload</div>
+                                Track the weights you used today. Next time, aim to add just one more rep or 5 lbs to one exercise. Small progress = big gains over time.
+                            </div>
+                        </div>
+
+                        <div class="next-steps">
+                            <div class="next-steps-text">
+                                Rest up, crush your next workout, and keep the momentum going. This is how champions are built. One. Workout. At. A. Time.
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="goBackToSelect()" style="padding: 1rem; font-size: 1rem; margin-bottom: 2rem;">Ready for Next Time</button>
                     </div>
                 </div>
             </div>
@@ -610,7 +829,8 @@
                     { name: 'Incline DB Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30 },
                     { name: 'Single Arm DB Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30 },
                     { name: 'DB Flyes (Bench)', sets: 2, reps: 12, tempo: '3-1-2', rest: 20 },
-                    { name: 'DB Reverse Flyes', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 }
+                    { name: 'DB Reverse Flyes', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 },
+                    { name: 'FINISHER: BOSU Jump Squats', sets: 3, reps: 0, tempo: '30/30', rest: 30, isFinisher: true }
                 ]
             },
             B: {
@@ -622,7 +842,8 @@
                     { name: 'Overhead DB Tricep Extension', sets: 3, reps: 10, tempo: '2-1-2', rest: 30 },
                     { name: 'DB Chest Supported Incline Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30 },
                     { name: 'Single DB Lateral Raise', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 },
-                    { name: 'Tricep Kickbacks', sets: 2, reps: 12, tempo: '2-1-1', rest: 20 }
+                    { name: 'Tricep Kickbacks', sets: 2, reps: 12, tempo: '2-1-1', rest: 20 },
+                    { name: 'FINISHER: Mountain Climbers on BOSU', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true }
                 ]
             },
             C: {
@@ -634,7 +855,8 @@
                     { name: 'DB Bulgarian Split Squats', sets: 3, reps: 10, tempo: '2-1-2', rest: 30 },
                     { name: 'DB Step-ups (Bench)', sets: 3, reps: 10, tempo: '2-1-1', rest: 30 },
                     { name: 'DB Walking Lunges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20 },
-                    { name: 'Sumo DB Deadlifts', sets: 2, reps: 12, tempo: '3-1-2', rest: 20 }
+                    { name: 'Sumo DB Deadlifts', sets: 2, reps: 12, tempo: '3-1-2', rest: 20 },
+                    { name: 'FINISHER: Jump Squats + Burpees', sets: 2, reps: 0, tempo: '20s', rest: 0, isFinisher: true }
                 ]
             }
         };
@@ -738,7 +960,13 @@
                 document.getElementById('exerciseCount').textContent = currentExerciseIdx + 1;
                 document.getElementById('totalExercises').textContent = workout.exercises.length;
                 document.getElementById('exerciseName').textContent = exercise.name;
-                document.getElementById('exerciseReps').textContent = exercise.reps;
+                
+                // Handle finisher exercises differently
+                if (exercise.isFinisher) {
+                    document.getElementById('exerciseReps').textContent = exercise.tempo;
+                } else {
+                    document.getElementById('exerciseReps').textContent = exercise.reps;
+                }
                 document.getElementById('exerciseTempo').textContent = exercise.tempo;
                 document.getElementById('exerciseRest').textContent = exercise.rest + 's';
 
@@ -764,7 +992,7 @@
                     return `
                         <div class="${classes}" onclick="jumpToExercise(${idx})">
                             <span>${ex.name}</span>
-                            <span class="exercise-item-reps">${ex.sets}×${ex.reps}</span>
+                            <span class="exercise-item-reps">${ex.sets}×${ex.reps || ex.tempo}</span>
                         </div>
                     `;
                 }).join('');
@@ -784,7 +1012,8 @@
         }
 
         function completeSet() {
-            const exercise = workoutData[currentWorkout].exercises[currentExerciseIdx];
+            const workout = workoutData[currentWorkout];
+            const exercise = workout.exercises[currentExerciseIdx];
             const setKey = `${currentWorkout}-${currentExerciseIdx}-${currentSetIdx}`;
             completedSets[setKey] = true;
             stopTimer();
@@ -793,18 +1022,27 @@
                 currentSetIdx++;
                 startRestTimer();
                 updateWorkoutView();
-            } else if (currentExerciseIdx < workoutData[currentWorkout].exercises.length - 1) {
+            } else if (currentExerciseIdx < workout.exercises.length - 1) {
                 currentExerciseIdx++;
                 currentSetIdx = 0;
-                updateWorkoutView();
+                
+                // Check if next exercise is finisher
+                const nextExercise = workout.exercises[currentExerciseIdx];
+                if (nextExercise.isFinisher) {
+                    showFinisherExercise();
+                } else {
+                    updateWorkoutView();
+                }
             } else {
+                // Workout complete (including finisher)
                 saveWorkout();
                 showFinished();
             }
         }
 
         function nextExercise() {
-            if (currentExerciseIdx < workoutData[currentWorkout].exercises.length - 1) {
+            const workout = workoutData[currentWorkout];
+            if (currentExerciseIdx < workout.exercises.length - 1) {
                 currentExerciseIdx++;
                 currentSetIdx = 0;
                 stopTimer();
@@ -911,17 +1149,38 @@
         }
 
         function playTimerSound() {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.1);
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create a pleasing "ding" sound with multiple frequencies
+                const now = audioContext.currentTime;
+                
+                // First tone - main ding
+                const osc1 = audioContext.createOscillator();
+                const gain1 = audioContext.createGain();
+                osc1.connect(gain1);
+                gain1.connect(audioContext.destination);
+                osc1.frequency.value = 800;
+                osc1.type = 'sine';
+                gain1.gain.setValueAtTime(0.4, now);
+                gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc1.start(now);
+                osc1.stop(now + 0.4);
+                
+                // Second tone - higher pitch for richness
+                const osc2 = audioContext.createOscillator();
+                const gain2 = audioContext.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioContext.destination);
+                osc2.frequency.value = 1200;
+                osc2.type = 'sine';
+                gain2.gain.setValueAtTime(0.3, now);
+                gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc2.start(now);
+                osc2.stop(now + 0.3);
+            } catch (e) {
+                console.warn('Timer sound failed:', e);
+            }
         }
 
         function saveWorkout() {
@@ -935,11 +1194,136 @@
             localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
         }
 
-        function showFinished() {
-            document.getElementById('finishedLetter').textContent = currentWorkout;
-            document.getElementById('finishedName').textContent = workoutData[currentWorkout].name;
-            document.getElementById('finishedFinisher').textContent = workoutData[currentWorkout].finisher;
-            showView('finishedView');
+        function showFinisherExercise() {
+            const workout = workoutData[currentWorkout];
+            const exercise = workout.exercises[currentExerciseIdx];
+
+            document.getElementById('finisherExerciseName').textContent = exercise.name.replace('FINISHER: ', '');
+            document.getElementById('finisherSets').textContent = exercise.sets;
+            
+            // Parse work/rest timing
+            const workRest = exercise.tempo;
+            document.getElementById('finisherWorkRest').textContent = workRest;
+            document.getElementById('finisherCurrentSet').textContent = currentSetIdx + 1;
+            document.getElementById('finisherTotalSets').textContent = exercise.sets;
+
+            // Set instructions based on finisher type
+            let instructions = '';
+            if (currentWorkout === 'A') {
+                instructions = 'Perform 30 seconds of explosive jump squats on the BOSU ball, then rest for 30 seconds. Repeat for all sets. Keep your core tight and land with control.';
+            } else if (currentWorkout === 'B') {
+                instructions = 'Perform 40 seconds of mountain climbers on the BOSU ball, then rest for 20 seconds. Repeat for all sets. Maintain a steady pace and keep your hips level.';
+            } else if (currentWorkout === 'C') {
+                instructions = 'Alternate between 20 seconds of jump squats and 20 seconds of burpees. Complete 2 rounds with no rest between. Give maximum effort!';
+            }
+            document.getElementById('finisherInstructions').textContent = instructions;
+
+            // Set progress badges
+            const finisherSetProgressHTML = Array.from({ length: exercise.sets }).map((_, idx) => {
+                const completed = completedSets[`${currentWorkout}-${currentExerciseIdx}-${idx}`];
+                let classes = 'finisher-set-badge ';
+                if (completed) classes += 'complete';
+                else if (idx === currentSetIdx) classes += 'current';
+                else classes += 'pending';
+                return `<div class="${classes}">${idx + 1}</div>`;
+            }).join('');
+            document.getElementById('finisherSetProgress').innerHTML = finisherSetProgressHTML;
+
+            updateFinisherTimerDisplay();
+            showView('finisherExerciseView');
+            document.getElementById('headerStats').style.display = 'none';
+        }
+
+        function updateFinisherTimerDisplay() {
+            document.getElementById('finisherTimerDisplay').textContent = formatTime(timeRemaining);
+        }
+
+        function handleFinisherWorkTimer() {
+            const workout = workoutData[currentWorkout];
+            const exercise = workout.exercises[currentExerciseIdx];
+            
+            if (timeRemaining === 0) {
+                // Parse work time from tempo
+                let workTime = 30;
+                if (currentWorkout === 'A') workTime = 30;
+                else if (currentWorkout === 'B') workTime = 40;
+                else if (currentWorkout === 'C') workTime = 20;
+                
+                timeRemaining = workTime;
+                timerMode = 'work';
+                startFinisherTimer();
+                document.getElementById('finisherTimerLabel').textContent = '⏱ Work Time';
+            } else {
+                toggleFinisherTimer();
+            }
+        }
+
+        function startFinisherTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerActive = true;
+            timerInterval = setInterval(() => {
+                if (timeRemaining > 0) {
+                    timeRemaining--;
+                    updateFinisherTimerDisplay();
+                } else {
+                    stopFinisherTimer();
+                    playTimerSound();
+                    if (timerMode === 'work') {
+                        // Auto-start rest timer
+                        startFinisherRestTimer();
+                    }
+                }
+            }, 1000);
+            updateFinisherTimerDisplay();
+        }
+
+        function startFinisherRestTimer() {
+            const workout = workoutData[currentWorkout];
+            const exercise = workout.exercises[currentExerciseIdx];
+            
+            let restTime = exercise.rest;
+            if (restTime > 0) {
+                timeRemaining = restTime;
+                timerMode = 'rest';
+                document.getElementById('finisherTimerLabel').textContent = '😤 Rest Time';
+                startFinisherTimer();
+            } else {
+                // No rest for this finisher
+                document.getElementById('finisherTimerLabel').textContent = 'Get Ready';
+                timeRemaining = 0;
+            }
+        }
+
+        function toggleFinisherTimer() {
+            timerActive = !timerActive;
+            if (timerActive) startFinisherTimer();
+            else { if (timerInterval) clearInterval(timerInterval); }
+            updateFinisherTimerDisplay();
+        }
+
+        function stopFinisherTimer() {
+            timerActive = false;
+            timeRemaining = 0;
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('finisherTimerLabel').textContent = 'Get Ready';
+            updateFinisherTimerDisplay();
+        }
+
+        function completeFinisherSet() {
+            const workout = workoutData[currentWorkout];
+            const exercise = workout.exercises[currentExerciseIdx];
+            const setKey = `${currentWorkout}-${currentExerciseIdx}-${currentSetIdx}`;
+            completedSets[setKey] = true;
+            stopFinisherTimer();
+
+            if (currentSetIdx < exercise.sets - 1) {
+                currentSetIdx++;
+                showFinisherExercise();
+            } else {
+                // Finisher complete - show finished screen
+                saveWorkout();
+                showFinished();
+            }
         }
 
         function renderCalendar() {
@@ -1100,6 +1484,63 @@
                     }
                 });
             }
+        }
+
+        function showMotivationalScreen() {
+            const motivationalPhrases = [
+                { message: "You killed it!", emoji: "💪", subtext: "That's how a champion trains." },
+                { message: "Absolutely crushed it!", emoji: "🔥", subtext: "Now go kick today's ass!" },
+                { message: "That was fucking beast!", emoji: "💪", subtext: "You're on fire!" },
+                { message: "Badass workout!", emoji: "🚀", subtext: "Keep that energy all day." },
+                { message: "You're a fucking machine!", emoji: "⚡", subtext: "No stopping you now." },
+                { message: "Destruction complete!", emoji: "💥", subtext: "Muscles are pumped, soul is fired up." },
+                { message: "That was damn impressive!", emoji: "🏆", subtext: "This is the way." },
+                { message: "You just went hard!", emoji: "💪", subtext: "Greatness in progress." },
+                { message: "Absolutely shredded it!", emoji: "🔥", subtext: "Stay hungry, stay humble." },
+                { message: "You're fucking killing it!", emoji: "⚡", subtext: "Nothing can stop you." },
+                { message: "That was legendary!", emoji: "👑", subtext: "Champions do this daily." },
+                { message: "You went off today!", emoji: "🚀", subtext: "This is what dedication looks like." },
+                { message: "Pure fucking power!", emoji: "⚡", subtext: "That's how you build an empire." },
+                { message: "You just dominated!", emoji: "👑", subtext: "Weakness has left the chat." },
+                { message: "Beast mode activated!", emoji: "🔥", subtext: "And you didn't turn it off." },
+                { message: "That was insanely good!", emoji: "🎯", subtext: "You're on another level." },
+                { message: "Absolute unit performance!", emoji: "💪", subtext: "Keep stacking those wins." },
+                { message: "You fucking earned it!", emoji: "🏆", subtext: "Rest well, champion." },
+                { message: "Straight up murdered it!", emoji: "💥", subtext: "Zero mercy shown today." },
+                { message: "That's fucking elite!", emoji: "⚡", subtext: "This is what elite looks like." },
+                { message: "You're unstoppable!", emoji: "🚀", subtext: "Nothing's gonna slow you down." },
+                { message: "Pure fucking dedication!", emoji: "💪", subtext: "That's the difference maker." },
+                { message: "You're a damn beast!", emoji: "🔥", subtext: "Stay that way forever." },
+                { message: "That was fucking beautiful!", emoji: "🎨", subtext: "Art in motion, my friend." },
+                { message: "You're on fire, literally!", emoji: "🔥", subtext: "Don't cool down, keep burning." },
+                { message: "Absolute fucking savagery!", emoji: "⚡", subtext: "In the best way possible." },
+                { message: "You just proved yourself!", emoji: "🏅", subtext: "Time to do it again tomorrow." },
+                { message: "That's what I'm talking about!", emoji: "💪", subtext: "Pure fucking excellence." },
+                { message: "You're a goddamn warrior!", emoji: "⚔️", subtext: "Ready for the next battle." },
+                { message: "Insanely good shit!", emoji: "🔥", subtext: "Keep that momentum rolling." },
+                { message: "You're a fucking monster!", emoji: "💥", subtext: "The good kind, always." },
+                { message: "That was pure fucking gold!", emoji: "👑", subtext: "You earned every drop of sweat." }
+            ];
+
+            const random = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
+            
+            document.getElementById('motivationalEmoji').textContent = random.emoji;
+            document.getElementById('motivationalMessage').textContent = random.message;
+            document.getElementById('motivationalSubtext').textContent = random.subtext;
+            
+            // Calculate exercises (main exercises + finisher)
+            const workout = workoutData[currentWorkout];
+            document.getElementById('exercisesCompleted').textContent = workout.exercises.length;
+            
+            showView('motivationalView');
+            document.getElementById('headerStats').style.display = 'none';
+        }
+
+        function showFinished() {
+            document.getElementById('finishedLetter').textContent = currentWorkout;
+            document.getElementById('finishedName').textContent = workoutData[currentWorkout].name;
+            document.getElementById('finishedFinisher').textContent = workoutData[currentWorkout].finisher;
+            showView('finishedView');
         }
 
         window.addEventListener('load', () => {

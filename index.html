@@ -1,82 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Power Block Workout</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background: #111;
-            color: white;
-            text-align: center;
-        }
-
-        .view {
-            display: none;
-            padding: 20px;
-        }
-
-        .view.active {
-            display: block;
-        }
-
-        button {
-            padding: 15px 20px;
-            margin: 10px;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            background: #2ecc71;
-            color: white;
-        }
-
-        .back {
-            background: #555;
-        }
-
-        #headerStats {
-            display: none;
-            padding: 10px;
-            background: #222;
-        }
-    </style>
-</head>
-
-<body>
-
-<!-- HEADER -->
-<div id="headerStats">
-    <div id="headerTitle">Workout</div>
-    <div id="headerSubtitle">In Progress</div>
-</div>
-
-<!-- SELECT VIEW -->
-<div id="selectView" class="view active">
-    <h1>Select Workout</h1>
-    <button onclick="goSelectWorkout('A')">Workout A</button>
-    <button onclick="goSelectWorkout('B')">Workout B</button>
-    <button onclick="goSelectWorkout('C')">Workout C</button>
-</div>
-
-<!-- PRE WORKOUT -->
-<div id="preWorkoutView" class="view">
-    <h1 id="preWorkoutLetter"></h1>
-    <h2 id="preWorkoutName"></h2>
-    <button onclick="goStartWorkout()">Start Workout</button>
-    <button class="back" onclick="goBack()">Back</button>
-</div>
-
-<!-- WORKOUT VIEW -->
-<div id="workoutView" class="view">
-    <h2 id="exerciseName"></h2>
-    <p>Reps: <span id="exerciseReps"></span></p>
-    <button onclick="startTimer(30)">Start Rest Timer</button>
-    <button class="back" onclick="goBack()">Back</button>
-</div>
-
 <script>
 /* =========================
    GLOBALS
@@ -92,7 +13,7 @@ try {
     appState = {};
 }
 
-// Debug helper (REMOVE LATER)
+// Debug helper (REMOVE LATER if you want)
 window.onerror = function(message) {
     alert("Error: " + message);
 };
@@ -105,20 +26,8 @@ const workoutData = {
     A: {
         name: 'Chest & Back',
         exercises: [
-            { name: 'DB Bench Press', reps: 8 },
-            { name: 'DB Rows', reps: 8 }
-        ]
-    },
-    B: {
-        name: 'Shoulders & Triceps',
-        exercises: [
-            { name: 'Shoulder Press', reps: 10 }
-        ]
-    },
-    C: {
-        name: 'Legs & Glutes',
-        exercises: [
-            { name: 'Goblet Squats', reps: 12 }
+            { name: 'DB Bench Press', sets: 4, reps: 8 },
+            { name: 'DB Rows', sets: 4, reps: 8 }
         ]
     }
 };
@@ -129,6 +38,9 @@ const workoutData = {
 
 let currentWorkout = null;
 let currentExerciseIdx = 0;
+let currentSetIdx = 0;
+let weights = {};
+let completedSets = {};
 let timerInterval = null;
 
 /* =========================
@@ -154,10 +66,15 @@ function saveState() {
         appState = {
             currentWorkout,
             currentExerciseIdx,
+            currentSetIdx,
+            weights,
+            completedSets,
             view: document.querySelector('.view.active')?.id
         };
         localStorage.setItem('appState', JSON.stringify(appState));
-    } catch (e) {}
+    } catch (e) {
+        console.warn("Save failed", e);
+    }
 }
 
 function loadState() {
@@ -165,6 +82,9 @@ function loadState() {
 
     currentWorkout = appState.currentWorkout;
     currentExerciseIdx = appState.currentExerciseIdx || 0;
+    currentSetIdx = appState.currentSetIdx || 0;
+    weights = appState.weights || {};
+    completedSets = appState.completedSets || {};
 
     showView(appState.view || 'selectView', false);
 
@@ -215,6 +135,9 @@ window.onpopstate = function () {
 function goSelectWorkout(w) {
     currentWorkout = w;
     currentExerciseIdx = 0;
+    currentSetIdx = 0;
+    weights = {};
+    completedSets = {};
 
     setText('preWorkoutLetter', w);
     setText('preWorkoutName', workoutData[w]?.name || '');
@@ -242,7 +165,7 @@ function updateWorkoutView() {
 }
 
 /* =========================
-   TIMER
+   TIMER (SAFE)
 ========================= */
 
 function startTimer(seconds) {
@@ -267,10 +190,8 @@ window.addEventListener('load', () => {
     try {
         loadState();
     } catch (e) {
+        console.error("Load failed", e);
         localStorage.removeItem('appState');
     }
 });
 </script>
-
-</body>
-</html>

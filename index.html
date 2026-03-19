@@ -688,17 +688,28 @@
         }
 
         function goBackToSelect() {
-            currentWorkout = null;
-            currentExerciseIdx = 0;
-            currentSetIdx = 0;
-            weights = {};
-            completedSets = {};
-            stopTimer();
-            showView('selectView');
-            document.getElementById('headerStats').style.display = 'none';
-            document.getElementById('headerTitle').textContent = 'Select Workout';
-            document.getElementById('headerSubtitle').textContent = 'Get ready to train';
-            switchToTab('workouts');
+            try {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                currentWorkout = null;
+                currentExerciseIdx = 0;
+                currentSetIdx = 0;
+                weights = {};
+                completedSets = {};
+                timeRemaining = 0;
+                timerActive = false;
+                showView('selectView');
+                document.getElementById('headerStats').style.display = 'none';
+                document.getElementById('headerTitle').textContent = 'Select Workout';
+                document.getElementById('headerSubtitle').textContent = 'Get ready to train';
+                switchToTab('workouts');
+            } catch (e) {
+                console.error('Error going back:', e);
+                currentWorkout = null;
+                showView('selectView');
+            }
         }
 
         function switchToTab(tabName) {
@@ -715,49 +726,55 @@
         }
 
         function updateWorkoutView() {
-            const workout = workoutData[currentWorkout];
-            const exercise = workout.exercises[currentExerciseIdx];
+            try {
+                if (!currentWorkout || !workoutData[currentWorkout]) return;
+                
+                const workout = workoutData[currentWorkout];
+                const exercise = workout.exercises[currentExerciseIdx];
 
-            document.getElementById('headerTitle').textContent = exercise.name;
-            document.getElementById('currentSet').textContent = currentSetIdx + 1;
-            document.getElementById('totalSets').textContent = exercise.sets;
-            document.getElementById('exerciseCount').textContent = currentExerciseIdx + 1;
-            document.getElementById('totalExercises').textContent = workout.exercises.length;
-            document.getElementById('exerciseName').textContent = exercise.name;
-            document.getElementById('exerciseReps').textContent = exercise.reps;
-            document.getElementById('exerciseTempo').textContent = exercise.tempo;
-            document.getElementById('exerciseRest').textContent = exercise.rest + 's';
+                document.getElementById('headerTitle').textContent = exercise.name;
+                document.getElementById('currentSet').textContent = currentSetIdx + 1;
+                document.getElementById('totalSets').textContent = exercise.sets;
+                document.getElementById('exerciseCount').textContent = currentExerciseIdx + 1;
+                document.getElementById('totalExercises').textContent = workout.exercises.length;
+                document.getElementById('exerciseName').textContent = exercise.name;
+                document.getElementById('exerciseReps').textContent = exercise.reps;
+                document.getElementById('exerciseTempo').textContent = exercise.tempo;
+                document.getElementById('exerciseRest').textContent = exercise.rest + 's';
 
-            const weightKey = `${currentWorkout}-${currentExerciseIdx}`;
-            document.getElementById('weightAmount').textContent = weights[weightKey] || 0;
+                const weightKey = `${currentWorkout}-${currentExerciseIdx}`;
+                document.getElementById('weightAmount').textContent = weights[weightKey] || 0;
 
-            const setProgressHTML = Array.from({ length: exercise.sets }).map((_, idx) => {
-                const completed = completedSets[`${currentWorkout}-${currentExerciseIdx}-${idx}`];
-                let classes = 'set-badge ';
-                if (completed) classes += 'complete';
-                else if (idx === currentSetIdx) classes += 'current';
-                else classes += 'pending';
-                return `<div class="${classes}">${idx + 1}</div>`;
-            }).join('');
-            document.getElementById('setProgress').innerHTML = setProgressHTML;
+                const setProgressHTML = Array.from({ length: exercise.sets }).map((_, idx) => {
+                    const completed = completedSets[`${currentWorkout}-${currentExerciseIdx}-${idx}`];
+                    let classes = 'set-badge ';
+                    if (completed) classes += 'complete';
+                    else if (idx === currentSetIdx) classes += 'current';
+                    else classes += 'pending';
+                    return `<div class="${classes}">${idx + 1}</div>`;
+                }).join('');
+                document.getElementById('setProgress').innerHTML = setProgressHTML;
 
-            updateTimerDisplay();
+                updateTimerDisplay();
 
-            const exerciseListHTML = workout.exercises.map((ex, idx) => {
-                let classes = 'exercise-item ';
-                if (idx === currentExerciseIdx) classes += 'current';
-                else classes += 'pending';
-                return `
-                    <div class="${classes}" onclick="jumpToExercise(${idx})">
-                        <span>${ex.name}</span>
-                        <span class="exercise-item-reps">${ex.sets}×${ex.reps}</span>
-                    </div>
-                `;
-            }).join('');
-            document.getElementById('exerciseListContainer').innerHTML = exerciseListHTML;
+                const exerciseListHTML = workout.exercises.map((ex, idx) => {
+                    let classes = 'exercise-item ';
+                    if (idx === currentExerciseIdx) classes += 'current';
+                    else classes += 'pending';
+                    return `
+                        <div class="${classes}" onclick="jumpToExercise(${idx})">
+                            <span>${ex.name}</span>
+                            <span class="exercise-item-reps">${ex.sets}×${ex.reps}</span>
+                        </div>
+                    `;
+                }).join('');
+                document.getElementById('exerciseListContainer').innerHTML = exerciseListHTML;
 
-            document.getElementById('prevBtn').disabled = currentExerciseIdx === 0;
-            document.getElementById('nextBtn').disabled = currentExerciseIdx === workout.exercises.length - 1;
+                document.getElementById('prevBtn').disabled = currentExerciseIdx === 0;
+                document.getElementById('nextBtn').disabled = currentExerciseIdx === workout.exercises.length - 1;
+            } catch (e) {
+                console.error('Error updating workout view:', e);
+            }
         }
 
         function updateWeight(delta) {
@@ -818,8 +835,15 @@
         }
 
         function updateTimerDisplay() {
-            const exercise = workoutData[currentWorkout].exercises[currentExerciseIdx];
-            document.getElementById('timerDisplay').textContent = formatTime(timeRemaining);
+            try {
+                if (!currentWorkout || !workoutData[currentWorkout]) {
+                    document.getElementById('timerDisplay').textContent = '0:00';
+                    return;
+                }
+                document.getElementById('timerDisplay').textContent = formatTime(timeRemaining);
+            } catch (e) {
+                document.getElementById('timerDisplay').textContent = '0:00';
+            }
         }
 
         function handleTimerBtn1() {
@@ -833,10 +857,15 @@
         }
 
         function startRestTimer() {
-            const exercise = workoutData[currentWorkout].exercises[currentExerciseIdx];
-            timeRemaining = exercise.rest;
-            timerMode = 'rest';
-            startTimer();
+            try {
+                if (!currentWorkout || !workoutData[currentWorkout]) return;
+                const exercise = workoutData[currentWorkout].exercises[currentExerciseIdx];
+                timeRemaining = exercise.rest;
+                timerMode = 'rest';
+                startTimer();
+            } catch (e) {
+                console.error('Error starting rest timer:', e);
+            }
         }
 
         function startWorkTimer(duration) {
@@ -868,10 +897,17 @@
         }
 
         function stopTimer() {
-            timerActive = false;
-            timeRemaining = 0;
-            if (timerInterval) clearInterval(timerInterval);
-            updateTimerDisplay();
+            try {
+                timerActive = false;
+                timeRemaining = 0;
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                updateTimerDisplay();
+            } catch (e) {
+                console.error('Error stopping timer:', e);
+            }
         }
 
         function playTimerSound() {

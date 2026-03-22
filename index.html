@@ -551,11 +551,50 @@
             background: rgba(239, 68, 68, 0.3);
             border-color: rgba(239, 68, 68, 0.6);
         }
-        .exercise-name-with-video {
+        .phase-selector {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
+        .phase-card {
+            flex: 1;
+            min-width: 150px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .phase-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(30, 41, 59, 1);
+        }
+        .phase-card.active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
+            border-color: rgb(59, 130, 246);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+        .phase-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; color: #60a5fa; }
+        .phase-duration { font-size: 0.75rem; color: #94a3b8; margin-bottom: 1rem; }
+        .phase-progress-label { font-size: 0.625rem; color: #94a3b8; margin-bottom: 0.5rem; text-transform: uppercase; }
+        .phase-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        .phase-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, rgb(59, 130, 246) 0%, rgb(37, 99, 235) 100%);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .phase-progress-text { font-size: 0.7rem; color: #cbd5e1; }
     </style>
 </head>
 <body>
@@ -586,24 +625,10 @@
                         <div id="workoutsTab">
                             <div class="app-title">POWERBLOCK</div>
                             <div class="app-subtitle">Balloon Method Workouts</div>
-                            <div class="workout-buttons">
-                                <button class="workout-btn" onclick="goSelectWorkout('A')">
-                                    <div class="workout-btn-title">Workout A</div>
-                                    <div class="workout-btn-subtitle">Chest & Back</div>
-                                </button>
-                                <button class="workout-btn" onclick="goSelectWorkout('B')">
-                                    <div class="workout-btn-title">Workout B</div>
-                                    <div class="workout-btn-subtitle">Shoulders & Triceps</div>
-                                </button>
-                                <button class="workout-btn" onclick="goSelectWorkout('C')">
-                                    <div class="workout-btn-title">Workout C</div>
-                                    <div class="workout-btn-subtitle">Legs & Glutes</div>
-                                </button>
-                            </div>
-                            <div class="program-info">
-                                <div class="program-info-label">30-MIN SESSIONS</div>
-                                <div class="program-info-text">2min warmup + 23min main + 3min finisher + 2min cooldown</div>
-                            </div>
+                            
+                            <div class="phase-selector" id="phaseSelector"></div>
+
+                            <div id="phaseWorkoutsContainer"></div>
                         </div>
 
                         <div id="historyTab" style="display: none;">
@@ -842,48 +867,145 @@
     </div>
 
     <script>
-        const workoutData = {
-            A: {
-                name: 'Chest & Back',
-                finisher: 'DB Thrusters (30sec work / 30sec rest × 3)',
-                exercises: [
-                    { name: 'DB Bench Press', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+bench+press+form' },
-                    { name: 'DB Rows (Bench Supported)', sets: 4, reps: 8, tempo: '2-1-3', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=chest+supported+dumbbell+row' },
-                    { name: 'Incline DB Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=incline+dumbbell+press+form' },
-                    { name: 'Single Arm DB Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=single+arm+dumbbell+row' },
-                    { name: 'DB Flyes (Bench)', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+flyes+chest' },
-                    { name: 'DB Reverse Flyes', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+reverse+flyes' },
-                    { name: 'FINISHER: DB Thrusters', sets: 3, reps: 0, tempo: '30/30', rest: 30, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+thrusters+form' }
-                ]
+        const phaseData = {
+            1: {
+                name: 'Phase 1',
+                duration: '4 Weeks',
+                workouts: {
+                    A: {
+                        name: 'Chest & Back',
+                        finisher: 'DB Thrusters (30sec work / 30sec rest × 3)',
+                        exercises: [
+                            { name: 'DB Bench Press', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+bench+press+form' },
+                            { name: 'DB Rows (Bench Supported)', sets: 4, reps: 8, tempo: '2-1-3', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=chest+supported+dumbbell+row' },
+                            { name: 'Incline DB Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=incline+dumbbell+press+form' },
+                            { name: 'Single Arm DB Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=single+arm+dumbbell+row' },
+                            { name: 'DB Flyes (Bench)', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+flyes+chest' },
+                            { name: 'DB Reverse Flyes', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+reverse+flyes' },
+                            { name: 'FINISHER: DB Thrusters', sets: 3, reps: 0, tempo: '30/30', rest: 30, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+thrusters+form' }
+                        ]
+                    },
+                    B: {
+                        name: 'Shoulders & Triceps',
+                        finisher: 'DB Renegade Rows on BOSU (40sec work / 20sec rest × 3)',
+                        exercises: [
+                            { name: 'DB Shoulder Press', sets: 4, reps: 8, tempo: '2-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+shoulder+press+form' },
+                            { name: 'DB Lateral Raises', sets: 4, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+lateral+raises' },
+                            { name: 'Overhead DB Tricep Extension', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=overhead+dumbbell+tricep+extension' },
+                            { name: 'DB Chest Supported Incline Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=chest+supported+incline+dumbbell+rows' },
+                            { name: 'Single DB Lateral Raise', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=single+arm+lateral+raise' },
+                            { name: 'Tricep Kickbacks', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+tricep+kickbacks' },
+                            { name: 'FINISHER: DB Renegade Rows on BOSU', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=renegade+rows+dumbbell+bosu' }
+                        ]
+                    },
+                    C: {
+                        name: 'Legs & Glutes',
+                        finisher: 'DB Bench Pulses + DB Step-ups (20sec × 2 rounds)',
+                        exercises: [
+                            { name: 'DB Goblet Squats', sets: 4, reps: 10, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+goblet+squat+form' },
+                            { name: 'DB Romanian Deadlifts', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift' },
+                            { name: 'DB Bulgarian Split Squats', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=bulgarian+split+squat+dumbbell' },
+                            { name: 'DB Step-ups (Bench)', sets: 3, reps: 10, tempo: '2-1-1', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+step+ups+bench' },
+                            { name: 'DB Walking Lunges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+walking+lunges' },
+                            { name: 'Sumo DB Deadlifts', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=sumo+dumbbell+deadlift' },
+                            { name: 'FINISHER: DB Bench Pulses + Step-ups', sets: 2, reps: 0, tempo: '20s', rest: 0, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+squat+pulses+step+ups' }
+                        ]
+                    }
+                }
             },
-            B: {
-                name: 'Shoulders & Triceps',
-                finisher: 'DB Renegade Rows on BOSU (40sec work / 20sec rest × 3)',
-                exercises: [
-                    { name: 'DB Shoulder Press', sets: 4, reps: 8, tempo: '2-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+shoulder+press+form' },
-                    { name: 'DB Lateral Raises', sets: 4, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+lateral+raises' },
-                    { name: 'Overhead DB Tricep Extension', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=overhead+dumbbell+tricep+extension' },
-                    { name: 'DB Chest Supported Incline Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=chest+supported+incline+dumbbell+rows' },
-                    { name: 'Single DB Lateral Raise', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=single+arm+lateral+raise' },
-                    { name: 'Tricep Kickbacks', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+tricep+kickbacks' },
-                    { name: 'FINISHER: DB Renegade Rows on BOSU', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=renegade+rows+dumbbell+bosu' }
-                ]
+            2: {
+                name: 'Phase 2',
+                duration: '4 Weeks',
+                workouts: {
+                    A: {
+                        name: 'Chest & Back',
+                        finisher: 'DB Burpees (30sec work / 30sec rest × 3)',
+                        exercises: [
+                            { name: 'DB Incline Press', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=incline+dumbbell+press+form' },
+                            { name: 'Bent Over DB Rows', sets: 4, reps: 8, tempo: '2-1-3', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=bent+over+dumbbell+row' },
+                            { name: 'DB Floor Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+floor+press' },
+                            { name: 'DB Seal Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=seal+row+dumbbell' },
+                            { name: 'Dumbbell Hex Press', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+hex+press' },
+                            { name: 'DB Pullovers', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+pullovers' },
+                            { name: 'FINISHER: DB Burpees', sets: 3, reps: 0, tempo: '30/30', rest: 30, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+burpees' }
+                        ]
+                    },
+                    B: {
+                        name: 'Shoulders & Triceps',
+                        finisher: 'DB Push Press + Tricep Dips (40sec work / 20sec rest × 3)',
+                        exercises: [
+                            { name: 'DB Push Press', sets: 4, reps: 8, tempo: '2-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+push+press+form' },
+                            { name: 'DB Upright Rows', sets: 4, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+upright+row' },
+                            { name: 'DB Skullcrushers', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+skullcrushers' },
+                            { name: 'DB Plate Raises', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+plate+raises' },
+                            { name: 'Single DB Rows', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=single+dumbbell+row' },
+                            { name: 'Tricep Overhead Holds', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=tricep+overhead+dumbbell' },
+                            { name: 'FINISHER: DB Push Press + Dips', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=bench+dips+triceps' }
+                        ]
+                    },
+                    C: {
+                        name: 'Legs & Glutes',
+                        finisher: 'DB Split Squat Pulses (20sec × 2 rounds)',
+                        exercises: [
+                            { name: 'DB Front Squats', sets: 4, reps: 10, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+front+squat+form' },
+                            { name: 'Trap Bar Deadlifts (or DB)', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+deadlift' },
+                            { name: 'DB Lateral Lunges', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+lateral+lunge' },
+                            { name: 'DB Sumo Squats', sets: 3, reps: 10, tempo: '2-1-1', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=sumo+dumbbell+squat' },
+                            { name: 'DB Curtsy Lunges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=curtsy+lunge+dumbbell' },
+                            { name: 'DB Calf Raises', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+calf+raises' },
+                            { name: 'FINISHER: DB Split Squat Pulses', sets: 2, reps: 0, tempo: '20s', rest: 0, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=split+squat+dumbbell' }
+                        ]
+                    }
+                }
             },
-            C: {
-                name: 'Legs & Glutes',
-                finisher: 'DB Bench Pulses + DB Step-ups (20sec × 2 rounds)',
-                exercises: [
-                    { name: 'DB Goblet Squats', sets: 4, reps: 10, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+goblet+squat+form' },
-                    { name: 'DB Romanian Deadlifts', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift' },
-                    { name: 'DB Bulgarian Split Squats', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=bulgarian+split+squat+dumbbell' },
-                    { name: 'DB Step-ups (Bench)', sets: 3, reps: 10, tempo: '2-1-1', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+step+ups+bench' },
-                    { name: 'DB Walking Lunges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+walking+lunges' },
-                    { name: 'Sumo DB Deadlifts', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=sumo+dumbbell+deadlift' },
-                    { name: 'FINISHER: DB Bench Pulses + Step-ups', sets: 2, reps: 0, tempo: '20s', rest: 0, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+squat+pulses+step+ups' }
-                ]
+            3: {
+                name: 'Phase 3',
+                duration: '4 Weeks',
+                workouts: {
+                    A: {
+                        name: 'Chest & Back',
+                        finisher: 'DB Bench to Chest Press (30sec work / 30sec rest × 3)',
+                        exercises: [
+                            { name: 'DB Decline Press', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=decline+dumbbell+press' },
+                            { name: 'Meadows Rows', sets: 4, reps: 8, tempo: '2-1-3', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=meadows+row+dumbbell' },
+                            { name: 'Close Grip DB Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=close+grip+dumbbell+press' },
+                            { name: 'Single Arm DB Rows (Explosive)', sets: 3, reps: 10, tempo: '1-0-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=explosive+dumbbell+row' },
+                            { name: 'DB Machine Chest Press', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=chest+press+dumbbell' },
+                            { name: 'DB W-Raises to Reverse', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=w+raise+dumbbell' },
+                            { name: 'FINISHER: DB Bench to Press', sets: 3, reps: 0, tempo: '30/30', rest: 30, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+press+combo' }
+                        ]
+                    },
+                    B: {
+                        name: 'Shoulders & Triceps',
+                        finisher: 'Sled Push Simulation (40sec work / 20sec rest × 3)',
+                        exercises: [
+                            { name: 'DB Arnold Press', sets: 4, reps: 8, tempo: '2-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=arnold+press+dumbbell' },
+                            { name: 'DB Face Pulls', sets: 4, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=face+pull+dumbbell' },
+                            { name: 'DB Close Grip Curl to Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=curl+to+press+dumbbell' },
+                            { name: 'DB Incline Y Raises', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=y+raise+dumbbell+incline' },
+                            { name: 'DB Hammer Curls', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=hammer+curl+dumbbell' },
+                            { name: 'Overhead DB Hold', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=overhead+dumbbell+hold' },
+                            { name: 'FINISHER: Sled Push Sim', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=sled+push+simulation' }
+                        ]
+                    },
+                    C: {
+                        name: 'Legs & Glutes',
+                        finisher: 'DB Sliding Lunges (20sec × 2 rounds)',
+                        exercises: [
+                            { name: 'DB Sissy Squats', sets: 4, reps: 10, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=sissy+squat+dumbbell' },
+                            { name: 'DB Single Leg Deadlifts', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=single+leg+deadlift+dumbbell' },
+                            { name: 'DB Reverse Lunges', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=reverse+lunge+dumbbell' },
+                            { name: 'DB Hamstring Curls', sets: 3, reps: 10, tempo: '2-1-1', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=hamstring+curl+dumbbell' },
+                            { name: 'DB Jump Squats (Low Impact)', sets: 2, reps: 12, tempo: '1-0-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=jump+squat+dumbbell' },
+                            { name: 'DB Glute Bridges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=glute+bridge+dumbbell' },
+                            { name: 'FINISHER: Sliding Lunges', sets: 2, reps: 0, tempo: '20s', rest: 0, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=sliding+lunge+dumbbell' }
+                        ]
+                    }
+                }
             }
         };
 
+        let currentPhase = 1;
         let currentWorkout = null;
         let currentExerciseIdx = 0;
         let currentSetIdx = 0;
@@ -897,31 +1019,67 @@
         let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || {};
         let weightHistory = JSON.parse(localStorage.getItem('weightHistory')) || [];
         let weightChart = null;
+        let phaseStartDates = JSON.parse(localStorage.getItem('phaseStartDates')) || {};
 
         function showView(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
+        function getWorkoutData(letter) {
+            try {
+                if (!phaseData[currentPhase]) {
+                    console.error(`Phase ${currentPhase} not found in phaseData`);
+                    return phaseData[1].workouts[letter];
+                }
+                if (!phaseData[currentPhase].workouts[letter]) {
+                    console.error(`Workout ${letter} not found in Phase ${currentPhase}`);
+                    return null;
+                }
+                return phaseData[currentPhase].workouts[letter];
+            } catch (e) {
+                console.error('Error getting workout data:', e);
+                return null;
+            }
+        }
+
         function goSelectWorkout(w) {
-            currentWorkout = w;
-            currentExerciseIdx = 0;
-            currentSetIdx = 0;
-            weights = {};
-            completedSets = {};
-            document.getElementById('preWorkoutLetter').textContent = w;
-            document.getElementById('preWorkoutName').textContent = workoutData[w].name;
-            document.getElementById('finisherPreview').textContent = workoutData[w].finisher;
-            document.getElementById('exerciseListPreview').innerHTML = workoutData[w].exercises.map((ex, idx) => `
-                <div class="exercise-preview-item">
-                    <span>${idx + 1}. ${ex.name}</span>
-                    <span style="color: #94a3b8;">${ex.sets}×${ex.reps}</span>
-                </div>
-            `).join('');
-            showView('preWorkoutView');
-            document.getElementById('headerStats').style.display = 'none';
-            document.getElementById('headerTitle').textContent = `Workout ${w}`;
-            document.getElementById('headerSubtitle').textContent = workoutData[w].name;
+            try {
+                currentWorkout = w;
+                currentExerciseIdx = 0;
+                currentSetIdx = 0;
+                weights = {};
+                completedSets = {};
+                
+                // Ensure currentPhase is set
+                if (!currentPhase) {
+                    currentPhase = 1;
+                }
+                
+                const workoutData = getWorkoutData(w);
+                if (!workoutData) {
+                    console.error('Failed to get workout data for', w, 'in phase', currentPhase);
+                    alert('Error: Could not load workout. Please try again.');
+                    return;
+                }
+                
+                document.getElementById('preWorkoutLetter').textContent = w;
+                document.getElementById('preWorkoutName').textContent = workoutData.name;
+                document.getElementById('finisherPreview').textContent = workoutData.finisher;
+                document.getElementById('exerciseListPreview').innerHTML = workoutData.exercises.map((ex, idx) => `
+                    <div class="exercise-preview-item">
+                        <span>${idx + 1}. ${ex.name}</span>
+                        <span style="color: #94a3b8;">${ex.sets}×${ex.reps}</span>
+                    </div>
+                `).join('');
+                showView('preWorkoutView');
+                document.getElementById('headerStats').style.display = 'none';
+                document.getElementById('headerTitle').textContent = `Workout ${w}`;
+                document.getElementById('headerSubtitle').textContent = workoutData.name;
+            } catch (e) {
+                console.error('Error in goSelectWorkout:', e);
+                alert('Error: ' + e.message);
+            }
         }
 
         function goStartWorkout() {
@@ -957,6 +1115,67 @@
             }
         }
 
+        function renderPhaseSelector() {
+            let html = '';
+            [1, 2, 3].forEach(phase => {
+                const isActive = phase === currentPhase;
+                const startDate = phaseStartDates[phase];
+                const daysElapsed = startDate ? Math.floor((new Date() - new Date(startDate)) / (1000 * 60 * 60 * 24)) : 0;
+                const progress = startDate ? Math.min(100, (daysElapsed / 28) * 100) : 0;
+                
+                html += `
+                    <div class="phase-card ${isActive ? 'active' : ''}" onclick="selectPhase(${phase})">
+                        <div class="phase-title">${phaseData[phase].name}</div>
+                        <div class="phase-duration">${phaseData[phase].duration}</div>
+                        <div class="phase-progress-label">${startDate ? `Day ${Math.min(daysElapsed + 1, 28)} of 28` : 'Not Started'}</div>
+                        <div class="phase-progress-bar">
+                            <div class="phase-progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="phase-progress-text">${startDate ? Math.round(progress) + '% Complete' : 'Click to Start'}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('phaseSelector').innerHTML = html;
+        }
+
+        function selectPhase(phase) {
+            currentPhase = phase;
+            
+            // Mark phase as started if not already
+            if (!phaseStartDates[phase]) {
+                phaseStartDates[phase] = new Date().toISOString().split('T')[0];
+                localStorage.setItem('phaseStartDates', JSON.stringify(phaseStartDates));
+            }
+            
+            renderPhaseSelector();
+            renderPhaseWorkouts();
+        }
+
+        function renderPhaseWorkouts() {
+            const workouts = phaseData[currentPhase].workouts;
+            let html = `
+                <div class="workout-buttons">
+                    <button class="workout-btn" onclick="goSelectWorkout('A')">
+                        <div class="workout-btn-title">Workout A</div>
+                        <div class="workout-btn-subtitle">${workouts.A.name}</div>
+                    </button>
+                    <button class="workout-btn" onclick="goSelectWorkout('B')">
+                        <div class="workout-btn-title">Workout B</div>
+                        <div class="workout-btn-subtitle">${workouts.B.name}</div>
+                    </button>
+                    <button class="workout-btn" onclick="goSelectWorkout('C')">
+                        <div class="workout-btn-title">Workout C</div>
+                        <div class="workout-btn-subtitle">${workouts.C.name}</div>
+                    </button>
+                </div>
+                <div class="program-info">
+                    <div class="program-info-label">30-MIN SESSIONS</div>
+                    <div class="program-info-text">2min warmup + 23min main + 3min finisher + 2min cooldown</div>
+                </div>
+            `;
+            document.getElementById('phaseWorkoutsContainer').innerHTML = html;
+        }
+
         function switchToTab(tabName) {
             const tabs = document.querySelectorAll('.nav-tab');
             tabs.forEach(tab => {
@@ -966,16 +1185,29 @@
             document.getElementById('workoutsTab').style.display = tabName === 'workouts' ? 'block' : 'none';
             document.getElementById('historyTab').style.display = tabName === 'history' ? 'block' : 'none';
             document.getElementById('progressTab').style.display = tabName === 'progress' ? 'block' : 'none';
+            if (tabName === 'workouts') { renderPhaseSelector(); renderPhaseWorkouts(); }
             if (tabName === 'history') renderCalendar();
             if (tabName === 'progress') { updateWeightDisplay(); updateWeightChart(); }
         }
 
         function updateWorkoutView() {
             try {
-                if (!currentWorkout || !workoutData[currentWorkout]) return;
+                if (!currentWorkout) {
+                    console.error('No current workout selected');
+                    return;
+                }
                 
-                const workout = workoutData[currentWorkout];
+                const workout = getWorkoutData(currentWorkout);
+                if (!workout) {
+                    console.error('Workout data is null for', currentWorkout);
+                    return;
+                }
+                
                 const exercise = workout.exercises[currentExerciseIdx];
+                if (!exercise) {
+                    console.error('Exercise not found at index', currentExerciseIdx);
+                    return;
+                }
 
                 document.getElementById('headerTitle').textContent = exercise.name;
                 document.getElementById('currentSet').textContent = currentSetIdx + 1;
@@ -999,11 +1231,11 @@
                 document.getElementById('exerciseTempo').textContent = exercise.tempo;
                 document.getElementById('exerciseRest').textContent = exercise.rest + 's';
 
-                const weightKey = `${currentWorkout}-${currentExerciseIdx}`;
+                const weightKey = `${currentPhase}-${currentWorkout}-${currentExerciseIdx}`;
                 document.getElementById('weightAmount').textContent = weights[weightKey] || 0;
 
                 const setProgressHTML = Array.from({ length: exercise.sets }).map((_, idx) => {
-                    const completed = completedSets[`${currentWorkout}-${currentExerciseIdx}-${idx}`];
+                    const completed = completedSets[`${currentPhase}-${currentWorkout}-${currentExerciseIdx}-${idx}`];
                     let classes = 'set-badge ';
                     if (completed) classes += 'complete';
                     else if (idx === currentSetIdx) classes += 'current';
@@ -1035,15 +1267,15 @@
         }
 
         function updateWeight(delta) {
-            const key = `${currentWorkout}-${currentExerciseIdx}`;
+            const key = `${currentPhase}-${currentWorkout}-${currentExerciseIdx}`;
             weights[key] = Math.max(0, (weights[key] || 0) + delta);
             document.getElementById('weightAmount').textContent = weights[key];
         }
 
         function completeSet() {
-            const workout = workoutData[currentWorkout];
+            const workout = getWorkoutData(currentWorkout);
             const exercise = workout.exercises[currentExerciseIdx];
-            const setKey = `${currentWorkout}-${currentExerciseIdx}-${currentSetIdx}`;
+            const setKey = `${currentPhase}-${currentWorkout}-${currentExerciseIdx}-${currentSetIdx}`;
             completedSets[setKey] = true;
             stopTimer();
 
@@ -1125,8 +1357,8 @@
 
         function startRestTimer() {
             try {
-                if (!currentWorkout || !workoutData[currentWorkout]) return;
-                const exercise = workoutData[currentWorkout].exercises[currentExerciseIdx];
+                if (!currentWorkout) return;
+                const exercise = getWorkoutData(currentWorkout).exercises[currentExerciseIdx];
                 timeRemaining = exercise.rest;
                 timerMode = 'rest';
                 startTimer();
@@ -1272,17 +1504,19 @@
 
         function saveWorkout() {
             const today = new Date().toISOString().split('T')[0];
+            const workoutData = getWorkoutData(currentWorkout);
             workoutHistory[today] = {
+                phase: currentPhase,
                 workout: currentWorkout,
                 date: today,
-                name: workoutData[currentWorkout].name,
+                name: workoutData.name,
                 weights: weights
             };
             localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
         }
 
         function showFinisherExercise() {
-            const workout = workoutData[currentWorkout];
+            const workout = getWorkoutData(currentWorkout);
             const exercise = workout.exercises[currentExerciseIdx];
 
             document.getElementById('finisherExerciseName').textContent = exercise.name.replace('FINISHER: ', '');
@@ -1297,17 +1531,17 @@
             // Set instructions based on finisher type
             let instructions = '';
             if (currentWorkout === 'A') {
-                instructions = 'Perform 30 seconds of explosive jump squats on the BOSU ball, then rest for 30 seconds. Repeat for all sets. Keep your core tight and land with control.';
+                instructions = `Perform your finisher exercise with explosive power. ${workRest} timing. Give maximum effort for the duration!`;
             } else if (currentWorkout === 'B') {
-                instructions = 'Perform 40 seconds of mountain climbers on the BOSU ball, then rest for 20 seconds. Repeat for all sets. Maintain a steady pace and keep your hips level.';
+                instructions = `Execute with controlled precision. ${workRest} timing. Maintain steady pace throughout.`;
             } else if (currentWorkout === 'C') {
-                instructions = 'Alternate between 20 seconds of jump squats and 20 seconds of burpees. Complete 2 rounds with no rest between. Give maximum effort!';
+                instructions = `Low-impact finisher for your legs. ${workRest} timing. Keep tension throughout!`;
             }
             document.getElementById('finisherInstructions').textContent = instructions;
 
             // Set progress badges
             const finisherSetProgressHTML = Array.from({ length: exercise.sets }).map((_, idx) => {
-                const completed = completedSets[`${currentWorkout}-${currentExerciseIdx}-${idx}`];
+                const completed = completedSets[`${currentPhase}-${currentWorkout}-${currentExerciseIdx}-${idx}`];
                 let classes = 'finisher-set-badge ';
                 if (completed) classes += 'complete';
                 else if (idx === currentSetIdx) classes += 'current';
@@ -1326,15 +1560,12 @@
         }
 
         function handleFinisherWorkTimer() {
-            const workout = workoutData[currentWorkout];
+            const workout = getWorkoutData(currentWorkout);
             const exercise = workout.exercises[currentExerciseIdx];
             
             if (timeRemaining === 0) {
                 // Parse work time from tempo
-                let workTime = 30;
-                if (currentWorkout === 'A') workTime = 30;
-                else if (currentWorkout === 'B') workTime = 40;
-                else if (currentWorkout === 'C') workTime = 20;
+                let workTime = parseInt(exercise.tempo.split('/')[0]) || 30;
                 
                 timeRemaining = workTime;
                 timerMode = 'work';
@@ -1368,7 +1599,7 @@
         }
 
         function startFinisherRestTimer() {
-            const workout = workoutData[currentWorkout];
+            const workout = getWorkoutData(currentWorkout);
             const exercise = workout.exercises[currentExerciseIdx];
             
             let restTime = exercise.rest;
@@ -1400,9 +1631,9 @@
         }
 
         function completeFinisherSet() {
-            const workout = workoutData[currentWorkout];
+            const workout = getWorkoutData(currentWorkout);
             const exercise = workout.exercises[currentExerciseIdx];
-            const setKey = `${currentWorkout}-${currentExerciseIdx}-${currentSetIdx}`;
+            const setKey = `${currentPhase}-${currentWorkout}-${currentExerciseIdx}-${currentSetIdx}`;
             completedSets[setKey] = true;
             stopFinisherTimer();
 
@@ -1620,7 +1851,7 @@
             document.getElementById('motivationalSubtext').textContent = random.subtext;
             
             // Calculate exercises (main exercises + finisher)
-            const workout = workoutData[currentWorkout];
+            const workout = getWorkoutData(currentWorkout);
             document.getElementById('exercisesCompleted').textContent = workout.exercises.length;
             
             showView('motivationalView');
@@ -1628,13 +1859,21 @@
         }
 
         function showFinished() {
+            const workout = getWorkoutData(currentWorkout);
             document.getElementById('finishedLetter').textContent = currentWorkout;
-            document.getElementById('finishedName').textContent = workoutData[currentWorkout].name;
-            document.getElementById('finishedFinisher').textContent = workoutData[currentWorkout].finisher;
+            document.getElementById('finishedName').textContent = workout.name;
+            document.getElementById('finishedFinisher').textContent = workout.finisher;
             showView('finishedView');
         }
 
         window.addEventListener('load', () => {
+            // Initialize with Phase 1
+            if (!currentPhase) {
+                currentPhase = 1;
+            }
+            renderPhaseSelector();
+            renderPhaseWorkouts();
+            
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.addEventListener('click', () => switchToTab(tab.dataset.tab));
             });

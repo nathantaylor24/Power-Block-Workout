@@ -149,6 +149,22 @@
         .weight-display { text-align: center; flex: 1; }
         .weight-amount { font-size: 3rem; font-weight: 700; }
         .weight-unit { font-size: 0.75rem; color: #94a3b8; }
+        .weight-input-field {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgb(59, 130, 246);
+            color: #60a5fa;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            font-family: monospace;
+        }
+        .weight-input-field:focus {
+            outline: none;
+            border-color: rgb(37, 99, 235);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
         .set-progress {
             display: flex;
             gap: 0.5rem;
@@ -715,7 +731,7 @@
                             <div class="stat-label">Weight Used</div>
                             <div class="weight-control">
                                 <button class="weight-btn" onclick="updateWeight(-5)">−</button>
-                                <div class="weight-display">
+                                <div class="weight-display" onclick="startWeightEdit()">
                                     <div class="weight-amount" id="weightAmount">0</div>
                                     <div class="weight-unit">lbs</div>
                                 </div>
@@ -873,41 +889,41 @@
                 duration: '4 Weeks',
                 workouts: {
                     A: {
-                        name: 'Chest & Back',
+                        name: 'Chest, Back & Biceps',
                         finisher: 'DB Thrusters (30sec work / 30sec rest × 3)',
                         exercises: [
                             { name: 'DB Bench Press', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+bench+press+form' },
                             { name: 'DB Rows (Bench Supported)', sets: 4, reps: 8, tempo: '2-1-3', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=chest+supported+dumbbell+row' },
-                            { name: 'Incline DB Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=incline+dumbbell+press+form' },
+                            { name: 'DB Curls', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+curls+biceps' },
                             { name: 'Single Arm DB Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=single+arm+dumbbell+row' },
-                            { name: 'DB Flyes (Bench)', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+flyes+chest' },
+                            { name: 'Incline DB Curls', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=incline+dumbbell+curls' },
                             { name: 'DB Reverse Flyes', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+reverse+flyes' },
                             { name: 'FINISHER: DB Thrusters', sets: 3, reps: 0, tempo: '30/30', rest: 30, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+thrusters+form' }
                         ]
                     },
                     B: {
-                        name: 'Shoulders & Triceps',
+                        name: 'Shoulders, Triceps & Abs',
                         finisher: 'DB Renegade Rows on BOSU (40sec work / 20sec rest × 3)',
                         exercises: [
                             { name: 'DB Shoulder Press', sets: 4, reps: 8, tempo: '2-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+shoulder+press+form' },
                             { name: 'DB Lateral Raises', sets: 4, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+lateral+raises' },
                             { name: 'Overhead DB Tricep Extension', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=overhead+dumbbell+tricep+extension' },
-                            { name: 'DB Chest Supported Incline Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=chest+supported+incline+dumbbell+rows' },
-                            { name: 'Single DB Lateral Raise', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=single+arm+lateral+raise' },
+                            { name: 'DB Wood Chops (Abs)', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+wood+chops+abs' },
                             { name: 'Tricep Kickbacks', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+tricep+kickbacks' },
+                            { name: 'DB Weighted Crunches', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+weighted+crunches' },
                             { name: 'FINISHER: DB Renegade Rows on BOSU', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=renegade+rows+dumbbell+bosu' }
                         ]
                     },
                     C: {
-                        name: 'Legs & Glutes',
+                        name: 'Legs, Glutes & Core',
                         finisher: 'DB Bench Pulses + DB Step-ups (20sec × 2 rounds)',
                         exercises: [
                             { name: 'DB Goblet Squats', sets: 4, reps: 10, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+goblet+squat+form' },
                             { name: 'DB Romanian Deadlifts', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift' },
                             { name: 'DB Bulgarian Split Squats', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=bulgarian+split+squat+dumbbell' },
-                            { name: 'DB Step-ups (Bench)', sets: 3, reps: 10, tempo: '2-1-1', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+step+ups+bench' },
+                            { name: 'DB Suitcase Carries (Core)', sets: 3, reps: 10, tempo: '2-0-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+suitcase+carry+core' },
                             { name: 'DB Walking Lunges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+walking+lunges' },
-                            { name: 'Sumo DB Deadlifts', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=sumo+dumbbell+deadlift' },
+                            { name: 'DB Weighted Leg Raises', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=weighted+leg+raises' },
                             { name: 'FINISHER: DB Bench Pulses + Step-ups', sets: 2, reps: 0, tempo: '20s', rest: 0, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+squat+pulses+step+ups' }
                         ]
                     }
@@ -918,41 +934,41 @@
                 duration: '4 Weeks',
                 workouts: {
                     A: {
-                        name: 'Chest & Back',
+                        name: 'Chest, Back & Biceps',
                         finisher: 'DB Burpees (30sec work / 30sec rest × 3)',
                         exercises: [
                             { name: 'DB Incline Press', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=incline+dumbbell+press+form' },
                             { name: 'Bent Over DB Rows', sets: 4, reps: 8, tempo: '2-1-3', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=bent+over+dumbbell+row' },
-                            { name: 'DB Floor Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+floor+press' },
+                            { name: 'Hammer Curls (Biceps)', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=hammer+curls+dumbbell' },
                             { name: 'DB Seal Rows', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=seal+row+dumbbell' },
-                            { name: 'Dumbbell Hex Press', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+hex+press' },
+                            { name: 'DB Concentration Curls', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=concentration+curls+dumbbell' },
                             { name: 'DB Pullovers', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+pullovers' },
                             { name: 'FINISHER: DB Burpees', sets: 3, reps: 0, tempo: '30/30', rest: 30, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+burpees' }
                         ]
                     },
                     B: {
-                        name: 'Shoulders & Triceps',
-                        finisher: 'DB Push Press + Tricep Dips (40sec work / 20sec rest × 3)',
+                        name: 'Shoulders, Triceps & Abs',
+                        finisher: 'DB Push Press + Ab Holds (40sec work / 20sec rest × 3)',
                         exercises: [
                             { name: 'DB Push Press', sets: 4, reps: 8, tempo: '2-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+push+press+form' },
                             { name: 'DB Upright Rows', sets: 4, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+upright+row' },
                             { name: 'DB Skullcrushers', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+skullcrushers' },
-                            { name: 'DB Plate Raises', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+plate+raises' },
-                            { name: 'Single DB Rows', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=single+dumbbell+row' },
+                            { name: 'DB Pallof Press (Core)', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=pallof+press+dumbbell' },
                             { name: 'Tricep Overhead Holds', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=tricep+overhead+dumbbell' },
-                            { name: 'FINISHER: DB Push Press + Dips', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=bench+dips+triceps' }
+                            { name: 'DB Dead Bugs (Core)', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dead+bugs+dumbbell' },
+                            { name: 'FINISHER: DB Push Press + Ab Work', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=push+press+dumbbell' }
                         ]
                     },
                     C: {
-                        name: 'Legs & Glutes',
+                        name: 'Legs, Glutes & Core',
                         finisher: 'DB Split Squat Pulses (20sec × 2 rounds)',
                         exercises: [
                             { name: 'DB Front Squats', sets: 4, reps: 10, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+front+squat+form' },
                             { name: 'Trap Bar Deadlifts (or DB)', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+deadlift' },
                             { name: 'DB Lateral Lunges', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+lateral+lunge' },
-                            { name: 'DB Sumo Squats', sets: 3, reps: 10, tempo: '2-1-1', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=sumo+dumbbell+squat' },
-                            { name: 'DB Curtsy Lunges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=curtsy+lunge+dumbbell' },
-                            { name: 'DB Calf Raises', sets: 2, reps: 12, tempo: '3-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+calf+raises' },
+                            { name: 'DB Rotational Lunges (Core)', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=rotational+lunge+dumbbell' },
+                            { name: 'DB Sumo Squats', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=sumo+dumbbell+squat' },
+                            { name: 'DB Weighted Russian Twists', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=russian+twist+dumbbell' },
                             { name: 'FINISHER: DB Split Squat Pulses', sets: 2, reps: 0, tempo: '20s', rest: 0, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=split+squat+dumbbell' }
                         ]
                     }
@@ -963,40 +979,40 @@
                 duration: '4 Weeks',
                 workouts: {
                     A: {
-                        name: 'Chest & Back',
+                        name: 'Chest, Back & Biceps',
                         finisher: 'DB Bench to Chest Press (30sec work / 30sec rest × 3)',
                         exercises: [
                             { name: 'DB Decline Press', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=decline+dumbbell+press' },
                             { name: 'Meadows Rows', sets: 4, reps: 8, tempo: '2-1-3', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=meadows+row+dumbbell' },
-                            { name: 'Close Grip DB Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=close+grip+dumbbell+press' },
+                            { name: 'DB 21s Curls (Biceps)', sets: 3, reps: 21, tempo: '1-0-1', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=21s+curls+dumbbell' },
                             { name: 'Single Arm DB Rows (Explosive)', sets: 3, reps: 10, tempo: '1-0-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=explosive+dumbbell+row' },
-                            { name: 'DB Machine Chest Press', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=chest+press+dumbbell' },
+                            { name: 'DB Zottoman Curls', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=zottoman+curls+dumbbell' },
                             { name: 'DB W-Raises to Reverse', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=w+raise+dumbbell' },
                             { name: 'FINISHER: DB Bench to Press', sets: 3, reps: 0, tempo: '30/30', rest: 30, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=dumbbell+press+combo' }
                         ]
                     },
                     B: {
-                        name: 'Shoulders & Triceps',
-                        finisher: 'Sled Push Simulation (40sec work / 20sec rest × 3)',
+                        name: 'Shoulders, Triceps & Abs',
+                        finisher: 'DB Arnold Press + Core (40sec work / 20sec rest × 3)',
                         exercises: [
                             { name: 'DB Arnold Press', sets: 4, reps: 8, tempo: '2-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=arnold+press+dumbbell' },
                             { name: 'DB Face Pulls', sets: 4, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=face+pull+dumbbell' },
                             { name: 'DB Close Grip Curl to Press', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=curl+to+press+dumbbell' },
-                            { name: 'DB Incline Y Raises', sets: 3, reps: 10, tempo: '2-1-3', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=y+raise+dumbbell+incline' },
+                            { name: 'DB Landmine Rotations (Abs)', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=landmine+rotations+dumbbell' },
                             { name: 'DB Hammer Curls', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=hammer+curl+dumbbell' },
-                            { name: 'Overhead DB Hold', sets: 2, reps: 12, tempo: '2-1-1', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=overhead+dumbbell+hold' },
-                            { name: 'FINISHER: Sled Push Sim', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=sled+push+simulation' }
+                            { name: 'DB Weighted Ab Wheel (Core)', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=ab+wheel+rollout' },
+                            { name: 'FINISHER: Arnold Press + Core', sets: 3, reps: 0, tempo: '40/20', rest: 20, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=arnold+press+dumbbell' }
                         ]
                     },
                     C: {
-                        name: 'Legs & Glutes',
+                        name: 'Legs, Glutes & Core',
                         finisher: 'DB Sliding Lunges (20sec × 2 rounds)',
                         exercises: [
                             { name: 'DB Sissy Squats', sets: 4, reps: 10, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=sissy+squat+dumbbell' },
                             { name: 'DB Single Leg Deadlifts', sets: 4, reps: 8, tempo: '3-1-2', rest: 45, videoUrl: 'https://www.youtube.com/results?search_query=single+leg+deadlift+dumbbell' },
                             { name: 'DB Reverse Lunges', sets: 3, reps: 10, tempo: '2-1-2', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=reverse+lunge+dumbbell' },
-                            { name: 'DB Hamstring Curls', sets: 3, reps: 10, tempo: '2-1-1', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=hamstring+curl+dumbbell' },
-                            { name: 'DB Jump Squats (Low Impact)', sets: 2, reps: 12, tempo: '1-0-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=jump+squat+dumbbell' },
+                            { name: 'DB Ab Wheel Hold (Core)', sets: 3, reps: 10, tempo: '3-0-1', rest: 30, videoUrl: 'https://www.youtube.com/results?search_query=ab+wheel+hold' },
+                            { name: 'DB Glute Kickbacks', sets: 2, reps: 12, tempo: '1-0-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=glute+kickback+dumbbell' },
                             { name: 'DB Glute Bridges', sets: 2, reps: 12, tempo: '2-1-2', rest: 20, videoUrl: 'https://www.youtube.com/results?search_query=glute+bridge+dumbbell' },
                             { name: 'FINISHER: Sliding Lunges', sets: 2, reps: 0, tempo: '20s', rest: 0, isFinisher: true, videoUrl: 'https://www.youtube.com/results?search_query=sliding+lunge+dumbbell' }
                         ]
@@ -1272,6 +1288,46 @@
             document.getElementById('weightAmount').textContent = weights[key];
         }
 
+        function startWeightEdit() {
+            const key = `${currentPhase}-${currentWorkout}-${currentExerciseIdx}`;
+            const currentWeight = weights[key] || 0;
+            const weightDisplay = document.getElementById('weightAmount');
+            
+            // Create input field
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'weight-input-field';
+            input.value = currentWeight;
+            input.min = '0';
+            input.step = '1';
+            
+            // Replace the display with input
+            weightDisplay.parentElement.replaceChild(input, weightDisplay);
+            input.focus();
+            input.select();
+            
+            // Handle blur and enter key
+            function finishEdit() {
+                let value = parseInt(input.value) || 0;
+                value = Math.max(0, value);
+                weights[key] = value;
+                
+                // Recreate the display element
+                const newDisplay = document.createElement('div');
+                newDisplay.id = 'weightAmount';
+                newDisplay.className = 'weight-amount';
+                newDisplay.textContent = value;
+                input.parentElement.replaceChild(newDisplay, input);
+            }
+            
+            input.addEventListener('blur', finishEdit);
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    finishEdit();
+                }
+            });
+        }
+
         function completeSet() {
             const workout = getWorkoutData(currentWorkout);
             const exercise = workout.exercises[currentExerciseIdx];
@@ -1335,7 +1391,7 @@
 
         function updateTimerDisplay() {
             try {
-                if (!currentWorkout || !workoutData[currentWorkout]) {
+                if (!currentWorkout) {
                     document.getElementById('timerDisplay').textContent = '0:00';
                     return;
                 }
@@ -1387,8 +1443,8 @@
                     vibrateDevice();
                     showTimerAlert();
                     // Auto-start rest timer if not on finisher
-                    if (!currentWorkout || !workoutData[currentWorkout]) return;
-                    const exercise = workoutData[currentWorkout].exercises[currentExerciseIdx];
+                    if (!currentWorkout) return;
+                    const exercise = getWorkoutData(currentWorkout).exercises[currentExerciseIdx];
                     if (!exercise.isFinisher && timerMode === 'work') {
                         startRestTimer();
                     }
